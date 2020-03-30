@@ -91,8 +91,6 @@ class GameEnvironment(object):
                 return self.get_state(), reward, done
         return self.get_state(), 0, False
 
-
-
     def get_opponent_move(self, verbose=False):
         if self.turn == self.opponent_1_turn:
             opponent = self.opponent_1
@@ -108,6 +106,7 @@ class GameEnvironment(object):
         self.reset(opponent_1, opponent_2)
         counter = 0
         done=False
+
         while not done:
             print(f"Currently on turn {counter}")
             self.print_state()
@@ -115,6 +114,7 @@ class GameEnvironment(object):
             print(f"Player takes action {action}")
             new_state, reward, done = self.step(action, verbose=True)
             self.print_state()
+            counter += 1
             input()
         return 
        
