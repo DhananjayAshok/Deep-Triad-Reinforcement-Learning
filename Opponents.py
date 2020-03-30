@@ -1,23 +1,46 @@
+import numpy as np
+from GameSystem.game import Game, GameEnvironment
 class Opponent(object):
     """
     Will be an abstract parent class for various other children who implement different strategies
     """
-    def play(state):
+    def __init__(self):
+        self.g = Game()
+        self.g_env = GameEnvironment()
+
+
+    def play(self, state):
         """
         Given the state of the game return a move that the opponent plays
         """
         raise NotImplementedError
 
 
-    def blocking_move(state):
+    def blocking_move(self, state):
         """
         If the next player has any move that wins them the game return a move that blocks at least one of those moves else returns -1
         """
+        board = state[:27].reshape((3,3,3))
+        turn = state[27]
+        next = state[28]
 
-    def winning_move(state):
+        for move in range(1, 10):
+            if self.g.is_legal(move, board) and self.g.check_for_win(move, next, board) == next:
+                return move
+        return -1
+
+    def winning_move(self, state):
         """
         If there is an object that will win the AI the game this move it returns the move that wins else it returns -1
         """
+        board = state[:27].reshape((3,3,3))
+        turn = state[27]
+        next = state[28]
+
+        for move in range(1, 10):
+            if self.g.is_legal(move, board) and self.g.check_for_win(move, turn, board) == turn:
+                return move
+        return -1
 
 class SelfOpponent(Opponent):
     """
@@ -30,7 +53,23 @@ class HumanOpponent(Opponent):
     """
     Is an Opponent object for use to test the Agent against a human
     """
-    pass
+    def play(self, state):
+        print("Before Human Turn State is -")
+        self.g_env.print_state(provided=state)
+        
+        while True:
+            inp = input("Enter a legal move from 1-9")
+            try:
+                int(inp)
+            except:
+                print("That move was not an integer")
+            else:
+                legal = self.g.is_legal(int(inp), state[:27].reshape(3,3,3))
+                if legal:
+                    return int(inp)
+                else:
+                    print("That move was not legal")
+
 
 
 class RandomOpponent(Opponent):
@@ -40,11 +79,49 @@ class RandomOpponent(Opponent):
         block immediate winning moves from the next player
         win if move exists
     """
-    pass
+    def __init__(self, blocking=False, winning=False):
+        Opponent.__init__(self)
+        self.blocking = blocking
+        self.winning = winning
 
+    def play(self, state):
+        """
+        Plays a random move (unless winning and/or blocking was true
+        """
+        if self.winning:
+            winmove = self.winning_move(state)
+            if (winmove != -1):
+                return winmove
+        if self.blocking:
+            blockmove = self.blocking_move(state)
+            if blockmove != -1:
+                return blockmove
+        choices = []
+        for move in range(1, 10):
+            if self.g.is_legal(move):
+                choices.append(move)
+        return np.random.choice(choices)
+        
 
 class HyperionOpponent(Opponent):
     """
     Plays against Hyperion the Greedy
     """
-    pass
+    def play(self, state):
+        board = state[:27].reshape((3,3,3)).copy()
+        player = state[27]
+        next_player = state[28]
+        winmove = self.winning_move(state)
+        if winmove != -1:
+            return winmove
+        blockmove = self.blocking_move(state)
+        if blockmove != -1:
+            return blockmove
+        choices = [-1 for i in range(0, 10)]
+        for move in range(1,10):
+            if self.g.is_legal(move, board):
+                choices[move] = self.g.get_attack_score(move, player, board)
+        max_indexes = np.where(np.asarray(choices) == max(choices))[0]
+        return np.random.choice(max_indexes)
+
+
