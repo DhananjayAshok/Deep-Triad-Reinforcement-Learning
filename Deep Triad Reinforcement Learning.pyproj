@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4d8142ca-96fe-4fbd-ab37-f977d57a2276</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Landing.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -31,7 +31,10 @@
     <Compile Include="GameSystem\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Landing.py" />
+    <Compile Include="Gyms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Main.py" />
     <Compile Include="GameSystem\game.py">
       <SubType>Code</SubType>
     </Compile>

@@ -91,15 +91,19 @@ class RandomOpponent(Opponent):
         if self.winning:
             winmove = self.winning_move(state)
             if (winmove != -1):
+                #print("Tries Winning Move")
                 return winmove
         if self.blocking:
             blockmove = self.blocking_move(state)
             if blockmove != -1:
+                #print("Tries Blocking Move")
                 return blockmove
+        #print("Does Neither")
         choices = []
         for move in range(1, 10):
-            if self.g.is_legal(move):
+            if self.g.is_legal(move, state[:27].reshape((3,3,3))):
                 choices.append(move)
+        #print(f"Thinks its choices are {choices}")
         return np.random.choice(choices)
         
 
