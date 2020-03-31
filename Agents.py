@@ -1,5 +1,5 @@
 import numpy as np
-from Opponents import HumanOpponent
+from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent
 from GameSystem.game import Game
 
 class Agent(object):
@@ -14,8 +14,23 @@ class HumanAgent(Agent):
     def __init__(self):
         self.human = HumanOpponent()
 
-    def play(self, state):
+    def play(self, state, real_epsilon=0.5):
         return self.human.play(state)
+
+class RandomAgent(Agent):
+    def __init__(self, blocking=True, winning=True):
+        self.random = RandomOpponent(blocking=blocking, winning=winning)
+
+    def play(self, state, real_epsilon=0.5):
+        return self.random.play(state)
+
+class HyperionAgent(Agent):
+    def __init__(self):
+        self.hyp = HyperionOpponent()
+
+    def play(self, state, real_epsilon=0.5):
+        return self.hyp.play(state)
+
 
 class TrainableAgent(Agent):
     """
@@ -61,6 +76,9 @@ class TrainableAgent(Agent):
 
 
 class QAgent(TrainableAgent):
+    """
+    We start with a naive approach of just x(S,A) = state vector + [action]
+    """
     def __init__(self, learning_rate, decay_rate, model_name="QLinearAgent"):
         TrainableAgent.__init__(self, learning_rate, decay_rate, model_name)
 
@@ -80,16 +98,17 @@ class QAgent(TrainableAgent):
             print(f"Could not predict (Likely because model was not fitted) returned 0")
             return 0
 
-class QLinearAgent(QAgent):
+
+class QSKLearnAgent(QAgent):
     """
-    We start with a naive approach of just x(S,A) = state vector + [action]
-    We make our Q-Value approximator -> x(S,A)T * w = sum(from 1 to n)(x(S,A)[i]*w[i]) i.e a linear function approximator
-    We use a stochastic Gradient Descent Update
+    Is a class that works for any SKLearn model that used partial_fit
     """
-    def __init__(self, learning_rate, decay_rate, model_name="QLinearAgent"):
-        from sklearn.linear_model import SGDRegressor
+    def __init__(self, learning_rate, decay_rate, model_name="QSKlearnAgent"):
         QAgent.__init__(self, learning_rate, decay_rate, model_name)
-        self.model = SGDRegressor()
+        self.model = self.get_unfitted_model()
+
+    def get_unfitted_model(self):
+        raise NotImplementedError
 
     def learn(self,X_train, y_train):
         """
@@ -117,3 +136,15 @@ class QLinearAgent(QAgent):
         import pickle
         self.model = pickle.load(open(os.path.join(path, self.model_name+".sav"), 'rb'))
         print(f"Model {self.model_name} imported without issues")
+
+class QLinearAgent(QSKLearnAgent):
+    """
+    Stochastic Gradient Descent with Linear Approximator (SKLearn SGD)
+    """
+    def __init__(self, learning_rate, decay_rate, model_name="QLinearAgent"):
+        QSKLearnAgent.__init__(self, learning_rate, decay_rate, model_name)
+
+    def get_unfitted_model(self):
+        from sklearn.linear_model import SGDRegressor
+        return SGDRegressor()
+

@@ -8,6 +8,20 @@ class Gym(object):
         self.epsilon = epsilon
 
 class ForwardTDLambdaGym(Gym):
+    """
+    A Gym to Train an Agent in the TDLambda Method
+    Assumes that the agent has the following functions implemented for training
+    Agent:
+        agent.learn(X_train, y_train)
+        agent.play(state, real_epsilon)
+        agent.decay_rate
+        agent.create_q_vector(state, action)
+        
+    For testing requires 
+        agent.play(state, real_epsilon)
+
+
+    """
     def __init__(self, epsilon=0.5, lamb=27):
         """
         Default is TD(inf) because max turns is 27
@@ -15,7 +29,18 @@ class ForwardTDLambdaGym(Gym):
         Gym.__init__(self, epsilon)
         self.lamb = lamb
 
-    def train(self, agent, env, opponent_1, opponent_2, episodes=10000, show_every = 1000):
+    def simulate(self, agent, env, opponent_1, opponent_2, episodes=10000, show_every = 1000, training = True):
+        """
+        Simulate episodes -
+               Across training we also aggregate statistics across the rolling window of show_every and display with a graph after training
+               In this system assuming there are no draws and the rewards for loss and win is equal we get Win % = ((Avg + 5)*10)%
+        If Training is True:
+            Loops through each episode and creates a dataset of [q_vector, qlambda value experienced]
+            After every episode we deploy the dataset as (X_train, y_train) to agents learn function
+
+        If Training is False:
+            
+        """
         aggr_ep_rewards = {'ep': [], 'avg': [], 'min': [], 'max': [] }
         rewardlist = []
 
@@ -33,14 +58,16 @@ class ForwardTDLambdaGym(Gym):
             turn = 0
             while not done:
                 turn += 1
-                action = agent.play(state, self.epsilon_scheduler(n))
+                action = agent.play(state, self.epsilon_scheduler(n, training))
                 new_state, rewards, done = env.step(action)
                 total_rewards += rewards
-                self.update_dataset(agent, state, action, rewards, turn, agent.decay_rate)
+                if training:
+                    self.update_dataset(agent, state, action, rewards, turn, agent.decay_rate)
                 state = new_state
-            X_train, y_train = self.deploy_dataset()
-            agent.learn(X_train, y_train)
-            self.clear_dataset()
+            if training:
+                X_train, y_train = self.deploy_dataset()
+                agent.learn(X_train, y_train)
+                self.clear_dataset()
             rewardlist.append(total_rewards)
             if flag:
                 aggr_ep_rewards['ep'].append(n)
@@ -60,7 +87,12 @@ class ForwardTDLambdaGym(Gym):
         
         return
 
-    def epsilon_scheduler(self, episodes):
+    def epsilon_scheduler(self, episodes, training = True):
+        """
+        Return a lower epsilon as episdoes go higher
+        """
+        if not training:
+            return 0.0
         return self.epsilon / ((episodes+1)**0.125)
 
     def update_dataset(self, agent, state, action, reward, turn, decay):
