@@ -50,11 +50,14 @@ class ForwardTDLambdaGym(Gym):
                     aggr_ep_rewards['max'].append(max(rewardlist))
                 rewardlist.clear()
 
+        print("Win Ratio is (AVG+5)/10")
+        input()
         plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label = 'avg')
         plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label = 'min')
         plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label = 'max')
         plt.legend()
         plt.show()
+        
         return
 
     def epsilon_scheduler(self, episodes):
