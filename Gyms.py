@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Gym(object):
     """
@@ -37,8 +38,8 @@ class ForwardTDLambdaGym(Gym):
                 total_rewards += rewards
                 self.update_dataset(agent, state, action, rewards, turn, agent.decay_rate)
                 state = new_state
-
-            agent.learn(self.dataset)
+            X_train, y_train = self.deploy_dataset()
+            agent.learn(X_train, y_train)
             self.clear_dataset()
             rewardlist.append(total_rewards)
             if flag:
@@ -76,6 +77,18 @@ class ForwardTDLambdaGym(Gym):
                 pass
         self.dataset.append([q_vector, reward])
         return
+    
+    def deploy_dataset(self):
+        """
+        Returns the dataset split into two numpy ndarrays - X_train which has all the input vectors and y_train which has all the experienced values.
+        """
+        X_train = []
+        y_train = []
+        for X, y in self.dataset:
+            X_train.append(X)
+            y_train.append(y)
+
+        return np.asarray(X_train), np.asarray(y_train)
 
     def clear_dataset(self):
         """

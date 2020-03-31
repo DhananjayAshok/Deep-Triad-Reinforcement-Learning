@@ -1,5 +1,7 @@
 import numpy as np
 from Opponents import HumanOpponent
+from GameSystem.game import Game
+
 class Agent(object):
     """
     Parent Class for all Agents
@@ -23,6 +25,7 @@ class TrainableAgent(Agent):
         self.learning_rate = learning_rate
         self.decay_rate = decay_rate
         self.model_name = model_name
+        self.g = Game()
     
     def update_from_state_action(self, state, action, target, prediction):
         raise NotImplementedError
@@ -33,17 +36,22 @@ class TrainableAgent(Agent):
     def play(self, state, real_epsilon=0.0):
         """
         Epsilon Greedy
+        Manually Avoids Illegal Moves
         """
+        choices = []
+        for i in range(1,10):
+            if self.g.is_legal(i, state[:27].reshape((3,3,3))):
+                choices.append(i)
+        
         if np.random.random() > real_epsilon:
-            choices = [i for i in range(1,10)]
             scores = [self.estimate_from_state_action(state, i) for i in choices]
             max_indexes = np.where(np.asarray(scores) == max(scores))[0]
             #print(f"Scores are {scores}")
             if np.isnan(scores[0]):
                 raise ArithmeticError(f"Scores are {scores}. There are exploding gradients and you are getting NaN values")
-            return np.random.choice(max_indexes) + 1     
+            return choices[np.random.choice(max_indexes)]     
         else:
-            return np.random.choice(range(1,10))
+            return np.random.choice(choices)
 
     def learn(self, dataset):
         raise NotImplementedError
@@ -51,65 +59,61 @@ class TrainableAgent(Agent):
     def save_model(self, path, model_name):
         pass
 
-class QLinearAgent(TrainableAgent):
-    """
-    We start with a naive approach of just x(S,A) = state vector + [action]
-    We make our Q-Value approximator -> x(S,A)T * w = sum(from 1 to n)(x(S,A)[i]*w[i]) i.e a linear function approximator
-    We use a stochastic Gradient Descent Update
-    """
+
+class QAgent(TrainableAgent):
     def __init__(self, learning_rate, decay_rate, model_name="QLinearAgent"):
         TrainableAgent.__init__(self, learning_rate, decay_rate, model_name)
-        self.w = np.random.uniform(low=1, high=2,size=(30,)).astype(np.longdouble)
 
     def estimate_from_state_action(self, state, action):
         return self.estimate_from_q_vector(self.create_q_vector(state, action))
 
-    def estimate_from_q_vector(self, q_vector):
-        value = 0
-        for i in range(len(self.w)):
-            value += q_vector[i]*self.w[i]
-        return value
-
-    
     def create_q_vector(self, state, action):
         """
         Retursn x(S,A) as described above
         """
         return np.append(state, action)
 
-    def update(self, vector, target, prediction):
-        """
-        target and prediction should be scalars
-        """
-        error = target - prediction
-        self.w += self.learning_rate * error * vector
+    def estimate_from_q_vector(self, q_vector):
+        try:
+            return self.model.predict([q_vector])[0]
+        except:
+            print(f"Could not predict (Likely because model was not fitted) returned 0")
+            return 0
 
-    def update_from_state_action(self, state, action, target, prediction):
-        return self.update(self.create_q_vector(state, action), target, prediction)
+class QLinearAgent(QAgent):
+    """
+    We start with a naive approach of just x(S,A) = state vector + [action]
+    We make our Q-Value approximator -> x(S,A)T * w = sum(from 1 to n)(x(S,A)[i]*w[i]) i.e a linear function approximator
+    We use a stochastic Gradient Descent Update
+    """
+    def __init__(self, learning_rate, decay_rate, model_name="QLinearAgent"):
+        from sklearn.linear_model import SGDRegressor
+        QAgent.__init__(self, learning_rate, decay_rate, model_name)
+        self.model = SGDRegressor()
 
-    def learn(self, dataset):
+    def learn(self,X_train, y_train):
         """
         Performs batch updates with that dataset
         """
-        for X, y in dataset:
-            self.update(X, y, self.estimate_from_q_vector(X))
+        self.model.partial_fit(X_train, y_train)
 
     def save_model(self, path, model_name=None):
         """
-        Save model to the path - path + model_name + _weights.npy
+        Save model to the path - path + model_name + .sav
         """
         import os
+        import pickle
         save_name = self.model_name
-        if mode_name is not None:
+        if model_name is not None:
             save_name = model_name
-        final_path = os.path.join(path, save_name + "_weights.npy")
-        np.save(final_path, self.w)
+        final_path = os.path.join(path, save_name + ".sav")
+        pickle.dump(self.model, open(final_path, 'wb'))
 
     def load_model(self, path):
         """
         Loads weights from a given path
         """
         import os
-        self.w = np.load(os.path.join(path, self.model_name+"_weights.npy"))
+        import pickle
+        self.model = pickle.load(open(os.path.join(path, self.model_name+".sav"), 'rb'))
         print(f"Model {self.model_name} imported without issues")
-

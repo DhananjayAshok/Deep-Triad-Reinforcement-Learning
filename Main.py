@@ -6,11 +6,13 @@ from Gyms import ForwardTDLambdaGym
 
 g = GameEnvironment()
 r = RandomOpponent()
-agent = QLinearAgent(0.07, 0.2)
+h = HyperionOpponent()
+
+agent = QLinearAgent(0.007, 0.2)
 agent_path = "models/QLinearAgent"
 
 
 gym = ForwardTDLambdaGym()
 
-gym.train(agent, g, r, r, episodes = 3000)
+gym.train(agent, g, h, h, episodes = 30000)
 agent.save_model(path=agent_path)
