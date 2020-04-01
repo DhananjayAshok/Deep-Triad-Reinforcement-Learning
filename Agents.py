@@ -147,4 +147,3 @@ class QLinearAgent(QSKLearnAgent):
     def get_unfitted_model(self):
         from sklearn.linear_model import SGDRegressor
         return SGDRegressor()
-
