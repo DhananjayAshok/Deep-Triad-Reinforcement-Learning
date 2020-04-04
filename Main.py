@@ -1,21 +1,24 @@
 from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent
 from GameSystem.game import GameEnvironment, Game
-from Agents import HumanAgent,  QLinearAgent, RandomAgent
-from Gyms import ForwardTDLambdaGym
+from Agents import HumanAgent,  QLinearAgent, RandomAgent, HyperionAgent, DeepQAgent
+from Gyms import ForwardTDLambdaGym, BatchDQLearningGym
+
 
 
 g = GameEnvironment()
 r = RandomOpponent(blocking=True, winning=True)
 h = HyperionOpponent()
-
-agent = QLinearAgent(0.007, 0.2)
+hyp = HyperionAgent()
+qagent = DeepQAgent(None, 0.35, avoid_assist=True, win=True, block=True, model_name="AssistedDQA")
 rando = RandomAgent()
-agent_path = "models/QLinearAgent"
+
+agent_path = "models/DeepQAgent"
 
 
-gym = ForwardTDLambdaGym()
+gym = BatchDQLearningGym(epsilon=0.999, avoid_illegal=False)
 
-agent.load_model(path=agent_path)
-#gym.simulate(agent, g, h, h, episodes = 3000, training=False)
-gym.simulate(agent, g, r, r, episodes = 3000, training=False)
-#g.play_slow(agent, h, h)
+qagent.load_model(path=agent_path)
+#gym.simulate(qagent, g, r, r, episodes = 500, training=True)
+#gym.simulate(hyp, g, r, r, episodes = 3000, training=False)
+#qagent.save_model(path=agent_path)
+g.play_slow(qagent, r, r, avoid_illegal=False)

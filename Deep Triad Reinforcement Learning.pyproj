@@ -38,6 +38,9 @@
     <Compile Include="GameSystem\game.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="NeuralNetworks.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Opponents.py">
       <SubType>Code</SubType>
     </Compile>
