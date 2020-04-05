@@ -1,7 +1,7 @@
 import numpy as np
 from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent
 from GameSystem.game import Game
-from NeuralNetworks import DeepQNetwork
+from NeuralNetworks import NaiveNetwork, AssistedNetwork
 import random
 
 
@@ -164,9 +164,9 @@ class DeepQAgent(QAgent):
     """
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_name="DQA"):
         QAgent.__init__(self, learning_rate, decay_rate, model_name)
-        self.model = DeepQNetwork(avoid_assist=avoid_assist, win_assist=win, block_assist = block)
         self.minibatch_size = minibatch_size
         self.min_replay_to_fit=min_replay_to_fit
+        
 
     def estimate_from_state_action(self, state, action):
         pred = self.model.predict([state])[0]
@@ -208,6 +208,9 @@ class DeepQAgent(QAgent):
         self.model.load(final_path)
         return
 
+    def get_model(self, **kwargs):
+        raise NotImplementedError
+
     def create_q_vector(self, state, action):
         """
         Retursn x(S,A) as described above
@@ -218,12 +221,18 @@ class DeepQAgent(QAgent):
         raise NotImplementedError("Not supposed to have q_vector")
 
 
-class NaiveDeepQAgent():
+class NaiveDeepQAgent(DeepQAgent):
     """
     Naive Simple Neural Net
     """
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_name="DQA"):
+        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = NaiveNetwork(avoid_assist=avoid_assist, win_assist=win, block_assist = block)
 
-class AssistedDeepQ(QAgent):
+class AssistedDeepQAgent(DeepQAgent):
     """
     Heavily customized feature inputs to try to make the best performing network
     """
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ADQA"):
+        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = AssistedNetwork()
