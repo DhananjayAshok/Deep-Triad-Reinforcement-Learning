@@ -7,7 +7,7 @@ class GameEnvironment(object):
     
 
     Will probably need the following variables
-        Game object -> to actual have a board and make moves
+        Game object -> to actually have a board and make moves
         MoveStack -> a stack of all moves that were played so it can be undone if we want
 
     Currently thinking the following will be the state vector
