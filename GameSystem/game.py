@@ -44,7 +44,8 @@ class GameEnvironment(object):
         will take in an action from the agent and then play 2 other moves (either opponent AI or Random or human) and then return - new_state vector, rewards, done
         """
         if not self.g.is_legal(action):
-            return self.get_state(), -10, False
+            print("Player Tried Illegal Move")
+            return self.get_state(), -1000000000, False
 
         agent_turn_reward, agent_turn_done = self.play_move(action)
         if agent_turn_done:
@@ -52,8 +53,6 @@ class GameEnvironment(object):
         else:
             return self.opponents_move_sequence(verbose=verbose)
         
-
-
     def play_move(self, move):
         """
         Makes a call to the play of the Game object. Assumes the move is legal and all checking for winning buisness is done
@@ -72,6 +71,7 @@ class GameEnvironment(object):
         else:
             reward = -5
             done = True
+
         self.turn = self.turn%3+1
         return reward, done
 
@@ -99,7 +99,7 @@ class GameEnvironment(object):
         move = opponent.play(self.get_state())
         return move
 
-    def play_slow(self, agent, opponent_1, opponent_2):
+    def play_slow(self, agent, opponent_1, opponent_2, avoid_illegal=True):
         """
         will create a new game but to be played slowly where each turn is only completed if a human presses an input
         """
@@ -110,7 +110,7 @@ class GameEnvironment(object):
         while not done:
             print(f"Currently on turn {counter}")
             self.print_state()
-            action = agent.play(self.get_state())
+            action = agent.play(self.get_state(), verbose=True, avoid_illegal=avoid_illegal)
             print(f"Player takes action {action}")
             new_state, reward, done = self.step(action, verbose=True)
             self.print_state()
@@ -189,14 +189,18 @@ class Game(object):
             self.matrix[0, decoded[1], decoded[2]] = 0
         return move
 
-    def play(self, move, player):
+    def play(self, move, player, board = None):
         """
         make a move with that player and return winner - (-1 if draw, 0 if game is still going on, else x if player x has won)
         """
-        self.move_stack.append(move)
-        decoded = self._decode_move(move)
-        winner = self.check_for_win(move, player)
-        self.matrix[decoded[0], decoded[1], decoded[2]] = player
+        target_matrix = self.matrix
+        if board is not None:
+            target_matrix = board
+        else:
+            self.move_stack.append(move)
+        decoded = self._decode_move(move, board=target_matrix)
+        winner = self.check_for_win(move, player, board=target_matrix)
+        target_matrix[decoded[0], decoded[1], decoded[2]] = player
         return winner
 
     def _decode_move(self,move, board=None):

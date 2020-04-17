@@ -48,7 +48,6 @@ class SelfOpponent(Opponent):
     """
     pass
 
-
 class HumanOpponent(Opponent):
     """
     Is an Opponent object for use to test the Agent against a human
@@ -69,8 +68,6 @@ class HumanOpponent(Opponent):
                     return int(inp)
                 else:
                     print("That move was not legal")
-
-
 
 class RandomOpponent(Opponent):
     """
@@ -106,7 +103,6 @@ class RandomOpponent(Opponent):
         #print(f"Thinks its choices are {choices}")
         return np.random.choice(choices)
         
-
 class HyperionOpponent(Opponent):
     """
     Plays against Hyperion the Greedy
