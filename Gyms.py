@@ -37,14 +37,8 @@ class Gym(object):
         rewardlist = []
 
 
-<<<<<<< HEAD
-
         for n in tqdm(range(episodes)):
             #print(f"Episode {n}")
-=======
-        for n in range(episodes):
-            print(f"Episode {n}")
->>>>>>> 9ecc3cb77e6c96d99d18384eebbaf50ea80ee7ff
             if n %show_every == 0:
                 flag = True
             else:
@@ -171,16 +165,10 @@ class BatchDQLearningGym(Gym):
         agent.play(state, real_epsilon)
 
     """
-<<<<<<< HEAD
     def __init__(self, epsilon=0.5, max_replay_size = 50_000, avoid_illegal=True, clear_after_episode=False):
         Gym.__init__(self, epsilon, avoid_illegal)
         self.max_replay_size = max_replay_size
         self.clear_after_episode = clear_after_episode
-=======
-    def __init__(self, epsilon=0.5, max_replay_size = 50_000, avoid_illegal=True):
-        Gym.__init__(self, epsilon, avoid_illegal)
-        self.max_replay_size = max_replay_size
->>>>>>> 9ecc3cb77e6c96d99d18384eebbaf50ea80ee7ff
         self.dataset = deque(maxlen=self.max_replay_size)
 
     def update_dataset(self, **kwargs):
@@ -212,13 +200,8 @@ class BatchDQLearningGym(Gym):
         """
         We do not wan't to reset the database and so we just don't
         """
-<<<<<<< HEAD
         if self.clear_after_episode:
             self.dataset = deque(maxlen=self.max_replay_size)
-=======
-        pass
->>>>>>> 9ecc3cb77e6c96d99d18384eebbaf50ea80ee7ff
-
 
 
 
