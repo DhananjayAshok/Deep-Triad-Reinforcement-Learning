@@ -7,6 +7,9 @@ from NeuralNetworks import NaiveNetwork, AssistedNetwork
 import random
 
 
+
+# Non Trainable/ Present Agents
+#region
 class Agent(object):
     """
     Parent Class for all Agents
@@ -35,6 +38,9 @@ class HyperionAgent(Agent):
 
     def play(self, state, real_epsilon=0.5):
         return self.hyp.play(state)
+#endregion
+
+
 
 class TrainableAgent(Agent):
     """
@@ -110,7 +116,6 @@ class QAgent(TrainableAgent):
         except:
             print(f"Could not predict (Likely because model was not fitted) returned 0")
             return 0
-
 
 class DictionaryAgent(QAgent):
     """
@@ -224,6 +229,8 @@ class DictionaryAgent(QAgent):
         return nz, il, win, inter
 
 
+# SKLearn Agents
+#region
 class QSKLearnAgent(QAgent):
     """
     Is a class that works for any SKLearn model that used partial_fit
@@ -272,7 +279,10 @@ class QLinearAgent(QSKLearnAgent):
     def get_unfitted_model(self):
         from sklearn.linear_model import SGDRegressor
         return SGDRegressor()
+#endregion
 
+# Deep Agents
+#region
 
 class DeepQAgent(QAgent):
     """
@@ -336,7 +346,6 @@ class DeepQAgent(QAgent):
     def estimate_from_q_vector(self, q_vector):
         raise NotImplementedError("Not supposed to have q_vector")
 
-
 class NaiveDeepQAgent(DeepQAgent):
     """
     Naive Simple Neural Net
@@ -352,3 +361,4 @@ class AssistedDeepQAgent(DeepQAgent):
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ADQA"):
         DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = AssistedNetwork()
+#endregion
