@@ -1,5 +1,5 @@
 import numpy as np
-from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent
+from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent , MMOpponent
 from GameSystem.game import Game
 import os
 import pickle
@@ -38,6 +38,13 @@ class HyperionAgent(Agent):
 
     def play(self, state, real_epsilon=0.5):
         return self.hyp.play(state)
+
+class MMAgent(Agent):
+    def __init__(self):
+        self.MM = MMOpponent()
+
+    def play(self,state):
+        return self.MM.play(state)
 #endregion
 
 
@@ -361,6 +368,8 @@ class AssistedDeepQAgent(DeepQAgent):
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ADQA"):
         DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = AssistedNetwork()
+
+
 
 
 class Utility:
