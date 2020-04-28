@@ -13,7 +13,7 @@ import random
 class Agent(object):
     """
     Parent Class for all Agents
-    
+
     """
     def play(self, state):
         raise NotImplementedError
@@ -51,7 +51,7 @@ class TrainableAgent(Agent):
         self.decay_rate = decay_rate
         self.model_name = model_name
         self.g = Game()
-    
+
     def update_from_state_action(self, state, action, target, prediction):
         raise NotImplementedError
 
@@ -82,7 +82,7 @@ class QAgent(TrainableAgent):
         for i in range(1,10):
             if self.g.is_legal(i, state[:27].reshape((3,3,3))) or not avoid_illegal:
                 choices.append(i)
-        
+
         if np.random.random() > real_epsilon:
             scores = [self.estimate_from_state_action(state, i) for i in choices]
             max_indexes = np.where(np.asarray(scores) == max(scores))[0]
@@ -97,7 +97,7 @@ class QAgent(TrainableAgent):
 
             if np.isnan(scores[0]):
                 raise ArithmeticError(f"Scores are {scores}. There are exploding gradients and you are getting NaN values")
-            return choices[np.random.choice(max_indexes)]     
+            return choices[np.random.choice(max_indexes)]
         else:
             return np.random.choice(choices)
 
@@ -122,14 +122,14 @@ class DictionaryAgent(QAgent):
     Supposed to be trained with a BatchLearning Gym with a clear_every_episode set to True
     Has a smart learning function where whenever it sees an illegal move it tries to learn that all similar configurations are also illegal
     """
-    def __init__(self, learning_rate, decay_rate, model_name="dict"): 
+    def __init__(self, learning_rate, decay_rate, model_name="dict"):
         QAgent.__init__(self, learning_rate, decay_rate, model_name)
         self.d = {}
         self.g = Game()
 
     def estimate_from_q_vector(self, q_vector):
         return self.d.get(tuple(q_vector), 0)
-       
+
     def learn(self, queue, heavylearn=True):
         """
         Updates value such that dict[tuple(q_vector)] = reward + q_value(next_state)
@@ -150,7 +150,7 @@ class DictionaryAgent(QAgent):
                     self.d[vectuple] = reward + self.decay_rate* max(values)
                 if heavylearn:
                     self.heavy_learn(state)
-                    self.heavy_learn(next_state)                
+                    self.heavy_learn(next_state)
 
         return
 
@@ -292,7 +292,7 @@ class DeepQAgent(QAgent):
         QAgent.__init__(self, learning_rate, decay_rate, model_name)
         self.minibatch_size = minibatch_size
         self.min_replay_to_fit=min_replay_to_fit
-        
+
 
     def estimate_from_state_action(self, state, action):
         pred = self.model.predict([state])[0]
@@ -309,7 +309,7 @@ class DeepQAgent(QAgent):
         minibatch = random.sample(queue, self.minibatch_size)
         self.model.train(minibatch, self.decay_rate)
         return
-    
+
     def save_model(self, path, model_name=None):
         """
         Saves model to the path given
@@ -361,4 +361,44 @@ class AssistedDeepQAgent(DeepQAgent):
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ADQA"):
         DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = AssistedNetwork()
+
+
+class Utility:
+    """
+    Functions for the MMOpponent
+    """
+    def MaxN(self,state):
+    """
+    returns a tuple --> (players evaluation,move to be made)
+    players evaluation --> largest number of n-in-a-row peices, that player has
+    returns -11 for illegal move, 3 for win and 0 for loss
+    """
+    current_player = state[27]
+    next_player = state[28]
+    board = np.reshape(state[:27],(3,3,3)).copy()
+    game=Game()
+    game.matrix = board.copy()
+    for action in range(1,10):
+        if game.is_legal(action):
+            #check terminal state --> Win/Loss/Draw
+            winner = game.check_for_win(action, current_player)
+            if winner==-1 or winner==0:
+                #return the tuple (static evaluation of this terminal state,move)
+                return (get_player_eval(current_player),None)
+            else:
+                #look at possible moves (MaxN)
+                current_player = next_player
+                next_player = next_player%3+1
+                new_state = self.convert_data_to_state(game, current_player, next_player)
+                result=-10
+                evaluation=MaxN(new_state)
+                best_result=evaluation[0]
+                if best_result>result:
+                    result,best_action=best_result,action
+        else:
+            #illegal move so worst reward (-11)
+            return (-11,None)
+    return (best_result,best_action)
+
+
 #endregion

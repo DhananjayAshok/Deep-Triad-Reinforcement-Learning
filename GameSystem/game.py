@@ -4,7 +4,7 @@ from .Line import get_win_lines
 class GameEnvironment(object):
     """
     This object will contain all the working of the game environment but not the game itself. It must have the following functionalities
-    
+
 
     Will probably need the following variables
         Game object -> to actually have a board and make moves
@@ -115,8 +115,8 @@ class GameEnvironment(object):
             self.print_state()
             counter += 1
             input()
-        return 
-       
+        return
+
     def get_state(self):
         """
         will return the state vector of the game as it is
@@ -293,3 +293,25 @@ class Game(object):
                     miniscore = 10000
             score *= miniscore
         return score
+
+    def get_player_eval(self,proposed_player, board=None):
+        """
+        This assumes that the move is legal and returns an integer value for players evaluation
+        """
+        if board is None:
+            board = self.matrix.copy()
+        else:
+            board = board.copy()
+        for line in self.win_lines:
+            if self.piece_at(line.point0, board)!=0  and self.piece_at(line.point0, board)!= proposed_player:
+                pass
+            elif self.piece_at(line.point1, board) != 0 and self.piece_at(line.point1, board) != proposed_player:
+                pass
+            elif self.piece_at(line.point2, board) != 0 and self.piece_at(line.point2, board) != proposed_player:
+                pass
+            else:
+                counter = 0
+                for l in [line.point0, line.point1, line.point2]:
+                    if self.piece_at(l, board) == proposed_player:
+                        counter += 1
+        return counter

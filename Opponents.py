@@ -55,7 +55,7 @@ class HumanOpponent(Opponent):
     def play(self, state):
         print("Before Human Turn State is -")
         self.g_env.print_state(provided=state)
-        
+
         while True:
             inp = input("Enter a legal move from 1-9")
             try:
@@ -102,7 +102,7 @@ class RandomOpponent(Opponent):
                 choices.append(move)
         #print(f"Thinks its choices are {choices}")
         return np.random.choice(choices)
-        
+
 class HyperionOpponent(Opponent):
     """
     Plays against Hyperion the Greedy
@@ -126,7 +126,15 @@ class HyperionOpponent(Opponent):
 
 class MMOpponent(Opponent):
     """
-    Plays against a minimax AI
+    Plays against a minimax AI bot
     """
-    def funcname(self, state):
-        pass
+    def play(self,state):
+        best_score=-10
+        for action in range(1,10):
+            evaluation=MaxN(state)
+            score=evaluation[0]
+            if score>best_score:
+                best_score=score
+                x=action
+        #play peice on x
+        return x
