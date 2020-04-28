@@ -4,7 +4,7 @@ from GameSystem.game import GameEnvironment, Game
 from Agents import HumanAgent,  QLinearAgent, RandomAgent, HyperionAgent, NaiveDeepQAgent, AssistedDeepQAgent, DictionaryAgent
 from Gyms import ForwardTDLambdaGym, BatchDQLearningGym
 
-
+print('hoi')
 
 g = GameEnvironment()
 rdumb = RandomOpponent()
