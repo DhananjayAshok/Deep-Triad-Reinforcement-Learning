@@ -36,7 +36,6 @@ class HyperionAgent(Agent):
     def play(self, state, real_epsilon=0.5):
         return self.hyp.play(state)
 
-
 class TrainableAgent(Agent):
     """
     Subclass of agents that are meant to go through the training process
@@ -62,10 +61,7 @@ class TrainableAgent(Agent):
 class QAgent(TrainableAgent):
     """
     We start with a naive approach of just x(S,A) = state vector + [action]
-<<<<<<< HEAD
-    Requires self.model by default
-=======
->>>>>>> 9ecc3cb77e6c96d99d18384eebbaf50ea80ee7ff
+
     """
     def __init__(self, learning_rate, decay_rate, model_name="TrainableAgent"):
         TrainableAgent.__init__(self, learning_rate, decay_rate, model_name)
