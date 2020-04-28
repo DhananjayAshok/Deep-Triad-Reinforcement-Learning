@@ -1,0 +1,17 @@
+checklist:
+
+eval_genomes(genomes, config):
+	for genome_id, genome in genomes:
+		genome.fitness = 0
+		create network and append to net list
+		create player and append to agentlist
+		append genome to genome list - or make an agent class to hold all of this
+	
+	while len(agents) > 0:
+		play one turn of the game
+		you can get decision with net.activate((inputs tuples))
+		update agent reward with genome.fitness += reward whenever it gets a reward
+		if the game ends then you can pop the agent from that list
+		if the game goes past a number of maximum number of times the agent has to play then break (illegal loop prevention)
+		
+		
