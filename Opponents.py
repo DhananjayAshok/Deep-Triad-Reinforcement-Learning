@@ -1,5 +1,6 @@
 import numpy as np
 from GameSystem.game import Game, GameEnvironment
+from Agents.py import Utility
 class Opponent(object):
     """
     Will be an abstract parent class for various other children who implement different strategies
@@ -129,9 +130,10 @@ class MMOpponent(Opponent):
     Plays against a minimax AI bot
     """
     def play(self,state):
+        uobj=Utility() #to use MaxN
         best_score=-10
         for action in range(1,10):
-            evaluation=MaxN(state)
+            evaluation=uobj.MaxN(state)
             score=evaluation[0]
             if score>best_score:
                 best_score=score

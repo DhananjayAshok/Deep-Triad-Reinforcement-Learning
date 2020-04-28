@@ -12,5 +12,5 @@ rsmart = RandomOpponent(blocking=True, winning=True)
 h = HyperionOpponent()
 
 gym = BatchDQLearningGym(epsilon=0.999, avoid_illegal=True, clear_after_episode=True)
-gym.simulate(agent, g, rdumb, rdumb, episodes = 500_000, training=True)
+gym.simulate(MMagent, g, rdumb, rsmart, episodes = 10, training=False)
 #gym.simulate(d, g, r, r, episodes = 3000, training=True)
