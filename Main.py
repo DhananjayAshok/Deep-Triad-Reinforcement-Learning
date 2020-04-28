@@ -22,6 +22,3 @@ gym.simulate(d, g, rdumb, rdumb, episodes = 500_000, training=True)
 #gym.simulate(d, g, r, r, episodes = 3000, training=True)
 d.save_model(alternate_name="dict")
 nz, il, win, inter = d.stats()
-
-
-#g.play_slow(d, r, r, avoid_illegal=False)

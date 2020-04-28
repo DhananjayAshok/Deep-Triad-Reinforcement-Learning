@@ -124,4 +124,9 @@ class HyperionOpponent(Opponent):
         max_indexes = np.where(np.asarray(choices) == max(choices))[0]
         return np.random.choice(max_indexes)
 
-
+class MMOpponent(Opponent):
+    """
+    Plays against a minimax AI
+    """
+    def funcname(self, state):
+        pass
