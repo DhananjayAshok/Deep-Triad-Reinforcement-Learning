@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import numpy as np
 from collections import deque
 
@@ -33,8 +34,8 @@ class Gym(object):
         rewardlist = []
 
 
-        for n in range(episodes):
-            print(f"Episode {n}")
+        for n in tqdm(range(episodes)):
+            #print(f"Episode {n}")
             if n %show_every == 0:
                 flag = True
             else:
@@ -161,9 +162,10 @@ class BatchDQLearningGym(Gym):
         agent.play(state, real_epsilon)
 
     """
-    def __init__(self, epsilon=0.5, max_replay_size = 50_000, avoid_illegal=True):
+    def __init__(self, epsilon=0.5, max_replay_size = 50_000, avoid_illegal=True, clear_after_episode=False):
         Gym.__init__(self, epsilon, avoid_illegal)
         self.max_replay_size = max_replay_size
+        self.clear_after_episode = clear_after_episode
         self.dataset = deque(maxlen=self.max_replay_size)
 
     def update_dataset(self, **kwargs):
@@ -195,7 +197,8 @@ class BatchDQLearningGym(Gym):
         """
         We do not wan't to reset the database and so we just don't
         """
-        pass
+        if self.clear_after_episode:
+            self.dataset = deque(maxlen=self.max_replay_size)
 
 
 

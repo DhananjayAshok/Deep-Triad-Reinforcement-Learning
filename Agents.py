@@ -1,6 +1,8 @@
 import numpy as np
 from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent
 from GameSystem.game import Game
+import os
+import pickle
 from NeuralNetworks import NaiveNetwork, AssistedNetwork
 import random
 
@@ -34,6 +36,7 @@ class HyperionAgent(Agent):
     def play(self, state, real_epsilon=0.5):
         return self.hyp.play(state)
 
+
 class TrainableAgent(Agent):
     """
     Subclass of agents that are meant to go through the training process
@@ -59,6 +62,7 @@ class TrainableAgent(Agent):
 class QAgent(TrainableAgent):
     """
     We start with a naive approach of just x(S,A) = state vector + [action]
+    Requires self.model by default
     """
     def __init__(self, learning_rate, decay_rate, model_name="TrainableAgent"):
         TrainableAgent.__init__(self, learning_rate, decay_rate, model_name)
@@ -107,6 +111,119 @@ class QAgent(TrainableAgent):
         except:
             print(f"Could not predict (Likely because model was not fitted) returned 0")
             return 0
+
+
+class DictionaryAgent(QAgent):
+    """
+    Supposed to be trained with a BatchLearning Gym with a clear_every_episode set to True
+    Has a smart learning function where whenever it sees an illegal move it tries to learn that all similar configurations are also illegal
+    """
+    def __init__(self, learning_rate, decay_rate, model_name="dict"): 
+        QAgent.__init__(self, learning_rate, decay_rate, model_name)
+        self.d = {}
+        self.g = Game()
+
+    def estimate_from_q_vector(self, q_vector):
+        return self.d.get(tuple(q_vector), 0)
+       
+    def learn(self, queue, heavylearn=True):
+        """
+        Updates value such that dict[tuple(q_vector)] = reward + q_value(next_state)
+        """
+        for i, (state, action, reward, next_state, done) in enumerate(queue):
+            vectuple = tuple(self.create_q_vector(state, action))
+            if done:
+                self.d[vectuple] = reward
+            else:
+                next_actions = range(1, 10)
+                values = []
+                for act in next_actions:
+                    tempvec = tuple(self.create_q_vector(next_state, act))
+                    values.append(self.estimate_from_q_vector(tempvec))
+                if reward <= -10:
+                    pass
+                else:
+                    self.d[vectuple] = reward + self.decay_rate* max(values)
+                if heavylearn:
+                    self.heavy_learn(state)
+                    self.heavy_learn(next_state)                
+
+        return
+
+    def heavy_learn(self, state):
+        """
+        Manually Learn all illegal moves and winning moves from a given state
+        """
+        self.g.matrix = state[:27].reshape((3,3,3)).copy()
+        player = state[27]
+        for act in range(1,10):
+            if not self.g.is_legal(act):
+                #tempvec = tuple(self.create_q_vector(state, act))
+                #self.d[tempvec] = -10
+                pass
+            else:
+                winner = self.g.check_for_win(act, player)
+                if winner > 0:
+                    tempvec = tuple(self.create_q_vector(state, act))
+                    self.d[tempvec] = 5
+        return
+
+    def save_model(self, alternate_name=None):
+        if alternate_name is None:
+            name = self.model_name
+        else:
+            name = alternate_name
+        #print(os.listdir())
+        with open(os.path.join("models", "Dictionary", name), 'wb') as f:
+            # Pickle the 'data' dictionary using the highest protocol available.
+            pickle.dump(self.d, f, pickle.HIGHEST_PROTOCOL)
+
+    def load_model(self, alternate_name = None):
+        if alternate_name is None:
+            name = self.model_name
+        else:
+            name = alternate_name
+        final = os.path.join("models", "Dictionary", name)
+        with open(final, 'rb') as f:
+            self.d = pickle.load(f)
+        print(f"Loaded without error - Number of estimates is {len(self.d)}")
+        return
+
+    def stats(self):
+        """
+        Returns lists nonzeros, illegals, winners, intermediates
+        """
+        l = len(self.d)
+        print(f"Number of Entries: {l}")
+        non_zeroes = 0
+        illegals = 0
+        winners = 0
+        intermediates = 0
+        nz = []
+        il = []
+        win = []
+        inter = []
+        for key in self.d:
+            val = self.d[key]
+            if val != 0:
+                non_zeroes += 1
+                nz.append(key)
+                if val <= -10:
+                    illegals += 1
+                    il.append(key)
+                elif val == 5:
+                    winners += 1
+                    win.append(key)
+                elif val > 0:
+                    intermediates += 1
+                    inter.append(key)
+
+        print(f"Number of non zero entries: {non_zeroes} this is {100*non_zeroes/l}% of the dictionary")
+        print(f"Number of illegal entries: {illegals} this is {100*illegals/non_zeroes}% of the non zero entries")
+        print(f"Number of winning entries: {winners} this is {100*winners/non_zeroes}% of the non zero entries")
+        print(f"Number of intermediate entries: {intermediates} this is {100*intermediates/non_zeroes}% of the non zero entries")
+        return nz, il, win, inter
+
 
 class QSKLearnAgent(QAgent):
     """

@@ -45,7 +45,7 @@ class GameEnvironment(object):
         """
         if not self.g.is_legal(action):
             print("Player Tried Illegal Move")
-            return self.get_state(), -1000000000, False
+            return self.get_state(), -10, False
 
         agent_turn_reward, agent_turn_done = self.play_move(action)
         if agent_turn_done:
@@ -99,7 +99,7 @@ class GameEnvironment(object):
         move = opponent.play(self.get_state())
         return move
 
-    def play_slow(self, agent, opponent_1, opponent_2, avoid_illegal=True):
+    def play_slow(self, agent, opponent_1, opponent_2, avoid_illegal=True, verbose=False):
         """
         will create a new game but to be played slowly where each turn is only completed if a human presses an input
         """
@@ -134,7 +134,7 @@ class GameEnvironment(object):
         if provided is None:
             temp = self.get_state()
         else:
-            temp = provided
+            temp = np.asarray(provided)
         board = temp[0:27].reshape((3,3,3))
         turn = temp[27]
         next = temp[-1]
