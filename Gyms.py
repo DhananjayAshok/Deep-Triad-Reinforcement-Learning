@@ -34,6 +34,7 @@ class Gym(object):
         rewardlist = []
 
 
+
         for n in tqdm(range(episodes)):
             #print(f"Episode {n}")
             if n %show_every == 0:

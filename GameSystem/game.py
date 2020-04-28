@@ -46,13 +46,12 @@ class GameEnvironment(object):
         if not self.g.is_legal(action):
             print("Player Tried Illegal Move")
             return self.get_state(), -10, False
-
         agent_turn_reward, agent_turn_done = self.play_move(action)
         if agent_turn_done:
             return self.get_state(), agent_turn_reward, agent_turn_done
         else:
             return self.opponents_move_sequence(verbose=verbose)
-        
+
     def play_move(self, move):
         """
         Makes a call to the play of the Game object. Assumes the move is legal and all checking for winning buisness is done
@@ -294,7 +293,3 @@ class Game(object):
                     miniscore = 10000
             score *= miniscore
         return score
-
-
-
-
