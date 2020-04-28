@@ -1,7 +1,7 @@
 import numpy as np
 from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent , MMOpponent
 from GameSystem.game import GameEnvironment, Game
-from Agents import HumanAgent,  QLinearAgent, RandomAgent, HyperionAgent, NaiveDeepQAgent, MMagent AssistedDeepQAgent, DictionaryAgent
+from Agents import HumanAgent,  QLinearAgent, RandomAgent, HyperionAgent, NaiveDeepQAgent, MMagent, AssistedDeepQAgent, DictionaryAgent
 from Gyms import ForwardTDLambdaGym, BatchDQLearningGym
 
 
