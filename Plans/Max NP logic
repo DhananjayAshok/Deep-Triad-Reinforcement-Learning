@@ -1,0 +1,64 @@
+# assume H is a list of the 3 player's values
+Td=20
+To=20
+def MPmax(self,startIndex,H,depth):
+    for i in range(0,3):
+        H[i].append(evaluate(i))
+    H.sort() #descending sort
+    lead=H[0]-H[1]
+    #leader=p1/p2/p2
+    leader=p1/p2/p3
+    if(leader==startIndex):
+        if lead>=Td:
+            paranoid(self,startIndex,H)
+    elif lead>=To:
+        offensive(self,startIndex,H)
+    else:
+        MaxN(self,startIndex,board,depth,-1000,1000,true)
+
+
+def Minimax(alpha,beta,isMax):
+    if(isMax):
+        for i in range(0,10):
+            for j in range(0,10):
+                for k in range(0,10):
+                    spot=[i,j,k]
+                    move(spot)
+                    if checkwinner(spot):
+                        undo move
+                        return 1000
+                    else:
+                        bestVal=Minimax(alpha,beta,False)
+                        alpha=max(alpha,bestVal)
+                        undo move
+                        if beta<=alpha:
+                            breakpoint
+        return bestVal
+    else:
+        for i in range(0,10):
+            for j in range(0,10):
+                for k in range(0,10):
+                    spot=[i,j,k]
+                    move(spot)
+                    if checkwinner(spot):
+                        undo move
+                        return -1000
+                    else:
+                        bestVal=Minimax(alpha,beta,i,j,k,True)
+                        beta=min(beta,bestVal)
+                        undo move
+                        if beta<=alpha:
+                            breakpoint
+        return bestVal
+
+algo for eval:
+-checks through all winning conditions for a player(input)
+-increments a count(starting from 0) for every player value in the same line(row/diag/col)
+-return the count after checking throughout
+
+
+
+algo for MaxN:
+-check if legal:no? recall function, yes...?:
+-if checkWin()-draw/win/tie: then get eval(current player)
+-else(not terminal state rn):
