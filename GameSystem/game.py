@@ -58,6 +58,8 @@ class GameEnvironment(object):
         We then return the reward and Done status
         """
         winner = self.g.play(move, self.turn)
+        win_reward = 1
+        loss_reward = -1
         if winner == -1:
             reward = 0
             done = True
@@ -65,10 +67,10 @@ class GameEnvironment(object):
             reward = 0
             done = False
         elif winner == self.agent_turn:
-            reward = 5
+            reward = win_reward
             done = True
         else:
-            reward = -5
+            reward = loss_reward
             done = True
 
         self.turn = self.turn%3+1
