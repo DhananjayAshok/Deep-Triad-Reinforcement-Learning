@@ -1,8 +1,5 @@
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
 from tqdm import tqdm
-=======
->>>>>>> 9ecc3cb77e6c96d99d18384eebbaf50ea80ee7ff
 import numpy as np
 from collections import deque
 

@@ -132,11 +132,12 @@ class MMOpponent(Opponent):
     """
     def play(self,state):
         best_score=-10
+        x = 1
         for action in range(1,10):
-            evaluation=MaxN(state)
+            evaluation= MaxN(state)
             score=evaluation[0]
             if score>best_score:
                 best_score=score
-                x=action
+                x =action
         #play peice on x
         return x

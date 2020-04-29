@@ -1,4 +1,8 @@
-def MaxN(self, state):
+import numpy as np
+from GameSystem.game import Game
+
+
+def MaxN(state):
     """
     returns a tuple --> (players evaluation,move to be made)
     players evaluation --> largest number of n-in-a-row peices, that player has
@@ -15,12 +19,12 @@ def MaxN(self, state):
             winner = game.check_for_win(action, current_player)
             if winner==-1 or winner==0:
                 #return the tuple (static evaluation of this terminal state,move)
-                return (get_player_eval(current_player),None)
+                return (game.get_player_eval(current_player),None)
             else:
                 #look at possible moves (MaxN)
                 current_player = next_player
                 next_player = next_player%3+1
-                new_state = self.convert_data_to_state(game, current_player, next_player)
+                new_state = convert_data_to_state(game, current_player, next_player)
                 result=-10
                 evaluation=MaxN(new_state)
                 best_result=evaluation[0]
@@ -30,3 +34,9 @@ def MaxN(self, state):
             #illegal move so worst reward (-11)
             return (-11,None)
     return (best_result,best_action)
+
+
+def convert_data_to_state(game, current_player, next_player):
+    board = game.matrix.copy()
+    return np.append(board, [current_player, next_player])
+

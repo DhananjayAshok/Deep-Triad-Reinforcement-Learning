@@ -39,11 +39,13 @@ class HyperionAgent(Agent):
     def play(self, state, real_epsilon=0.5):
         return self.hyp.play(state)
 
+
 class MMAgent(Agent):
     def __init__(self):
         self.MM = MMOpponent()
 
-    def play(self,state):
+    def play(self, state, real_epsilon=0, **kwargs):
+        
         return self.MM.play(state)
 #endregion
 
