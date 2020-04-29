@@ -55,7 +55,7 @@ class TrainableAgent(Agent):
     """
     Subclass of agents that are meant to go through the training process
     """
-    def __init__(self, learning_rate, decay_rate, model_name):
+    def __init__(self, learning_rate=1, decay_rate=0.2, model_name="TrainableAgent"):
         self.learning_rate = learning_rate
         self.decay_rate = decay_rate
         self.model_name = model_name
@@ -290,7 +290,7 @@ class QLinearAgent(QSKLearnAgent):
         return SGDRegressor()
 #endregion
 
-# Deep Agents
+# Deep Q Agents
 #region
 
 class DeepQAgent(QAgent):
@@ -372,3 +372,24 @@ class AssistedDeepQAgent(DeepQAgent):
         self.model = AssistedNetwork()
 
 #endregion
+
+class NEATAgent(TrainableAgent):
+    import neat
+    def __init__(self, genome, config, model_name="NEATAgent: Genome - "):
+        self.genome = genome
+        self.net = neat.nn.FeedForwardNetwork.create(genome, config)
+        TrainableAgent.__init__(self, model_name=model_name+str(genome))
+    
+    def play(self, state):
+        """
+        Play a move from the genome network
+        """
+        output = self.net.activate(tuple(state))
+        return np.argmax(output)+1
+
+    def update_fitness(self, value):
+        """
+        Increments genome fitness by given value
+        """
+        self.genome.fitness += value
+

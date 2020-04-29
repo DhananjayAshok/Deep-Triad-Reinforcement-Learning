@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from collections import deque
+from Agents import NEATAgent
+
 
 class Gym(object):
     """
@@ -81,7 +83,6 @@ class Gym(object):
         pass
     def deploy_dataset(self, **kwargs):
         pass
-
 
 class ForwardTDLambdaGym(Gym):
     """
@@ -201,4 +202,64 @@ class BatchDQLearningGym(Gym):
             self.dataset = deque(maxlen=self.max_replay_size)
 
 
+class NEATArena(object):
+    """
+    Class to run the genetic algorithms training
+    """
+    import neat
 
+    def eval_genomes(self, genomes, config):
+        agents = []
+        envs = []
+        for genome_id, genome in genomes:
+            genome.fitness = 0
+            agents.append(NEATAgent(genome, config))
+            e = self.EnvClass()
+            e.reset(self.opponent1, self.opponent2)
+            envs.append(e)
+
+        state = self.env.reset(self.opponent1, self.opponent2)
+        player_moves = 0
+        while len(agents) > 0 and player_moves < 50: # Arbitrary large number
+            to_pop_index = []
+            for i, agent in enumerate(agents):
+                state = envs[i].get_state()
+                action = agent.play(state)
+                new_state, rewards, done = envs[i].step(action)
+                agent.update_fitness(rewards)
+                if done:
+                    to_pop_index.append(i)
+            for index in sorted(to_pop_index, reverse=True):
+                agents.pop(index)
+                envs.pop(index)
+            player_moves+=1
+
+
+    def simulate(config_file_path, gameenvclass, opponent1, opponent2, no_gens=100):
+        """
+        Performs the NEAT Algorithm on the given agent|
+        config_file_path: path to the config file that should exist
+        gameenvclass: Class (not instance) of GameEnvironment which can play steps
+        opponents1 and 2: instances of opponent objects
+        no_gens: number of generations to train for
+        """
+        self.EnvClass = gameenvclass
+        self.opponent1 = opponent1
+        self.opponent2 = opponent2
+        config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         config_file_path)
+
+        # Create the population, which is the top-level object for a NEAT run.
+        p = neat.Population(config)
+
+        # Add a stdout reporter to show progress in the terminal.
+        p.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        p.add_reporter(stats)
+        #p.add_reporter(neat.Checkpointer(5))
+
+        winner = p.run(self.eval_genomes, no_gens)
+
+        # show final stats
+        print('\nBest genome:\n{!s}'.format(winner))
