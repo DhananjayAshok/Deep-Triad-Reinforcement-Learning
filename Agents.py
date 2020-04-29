@@ -6,6 +6,7 @@ import pickle
 from NeuralNetworks import NaiveNetwork, AssistedNetwork
 import random
 from Utility import random_highest_index
+import neat
 
 
 
@@ -375,18 +376,30 @@ class AssistedDeepQAgent(DeepQAgent):
 #endregion
 
 class NEATAgent(TrainableAgent):
-    import neat
     def __init__(self, genome, config, model_name="NEATAgent: Genome - "):
         self.genome = genome
         self.net = neat.nn.FeedForwardNetwork.create(genome, config)
         TrainableAgent.__init__(self, model_name=model_name+str(genome))
     
-    def play(self, state):
+    def play(self, state, avoid_illegals= False):
         """
         Play a move from the genome network
         """
         output = self.net.activate(tuple(state))
-        return random_highest_index(output)+1
+        if not avoid_illegals:
+            return random_highest_index(output)+1
+        else:
+            minimum = min(output)
+            self.g.matrix = state[0:27].reshape((3,3,3))
+            choices = [0 for action in range(1, 10)]
+            for action in range(1, 10):
+                if self.g.is_legal(action):
+                    choices[action-1] = output[action-1]
+                else:
+                    choices[action-1] = minimum - 1
+            return random_highest_index(choices)+1
+
+
 
     def update_fitness(self, value):
         """

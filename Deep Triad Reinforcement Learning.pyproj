@@ -53,6 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GameSystem\" />
+    <Folder Include="Plans\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Plans\Max NP logic" />
+    <Content Include="Plans\NEATPlan.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

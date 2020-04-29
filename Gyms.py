@@ -3,6 +3,8 @@ from tqdm import tqdm
 import numpy as np
 from collections import deque
 from Agents import NEATAgent
+import neat
+import os
 
 
 class Gym(object):
@@ -206,8 +208,7 @@ class NEATArena(object):
     """
     Class to run the genetic algorithms training
     """
-    import neat
-    import os
+
     def __init__(self, path):
         """
         path: the path argument that will lead to the directory which holds all config files
@@ -215,33 +216,36 @@ class NEATArena(object):
         self.path = path
 
     def eval_genomes(self, genomes, config):
-        agents = []
-        envs = []
+        longagents = []
+        longenvs = []
         for genome_id, genome in genomes:
             genome.fitness = 0
-            agents.append(NEATAgent(genome, config))
+            longagents.append(NEATAgent(genome, config))
             e = self.EnvClass()
-            e.reset(self.opponent1, self.opponent2)
-            envs.append(e)
+            longenvs.append(e)
 
-        state = self.env.reset(self.opponent1, self.opponent2)
-        player_moves = 0
-        while len(agents) > 0 and player_moves < 50: # Arbitrary large number
-            to_pop_index = []
-            for i, agent in enumerate(agents):
-                state = envs[i].get_state()
-                action = agent.play(state)
-                new_state, rewards, done = envs[i].step(action)
-                agent.update_fitness(rewards)
-                if done:
-                    to_pop_index.append(i)
-            for index in sorted(to_pop_index, reverse=True):
-                agents.pop(index)
-                envs.pop(index)
-            player_moves+=1
+        for n in range(self.games_per_gen):
+            agents = longagents.copy()
+            for env in longenvs:
+                env.reset(self.opponent1, self.opponent2)
+            envs = longenvs.copy()
+            player_moves = 0
+            while len(agents) > 0 and player_moves < 50: # Arbitrary large number
+                to_pop_index = []
+                for i, agent in enumerate(agents):
+                    state = envs[i].get_state()
+                    action = agent.play(state, self.avoid_illegals)
+                    new_state, rewards, done = envs[i].step(action)
+                    agent.update_fitness(rewards)
+                    if done:
+                        to_pop_index.append(i)
+                for index in sorted(to_pop_index, reverse=True):
+                    agents.pop(index)
+                    envs.pop(index)
+                player_moves+=1
 
 
-    def simulate(config_file_name, gameenvclass, opponent1, opponent2, no_gens=100):
+    def simulate(self, config_file_name, gameenvclass, opponent1, opponent2, games_per_gen = 5, no_gens=100, avoid_illegals=True):
         """
         Performs the NEAT Algorithm on the given agent|
         config_file_path: path to the config file that should exist
@@ -252,6 +256,8 @@ class NEATArena(object):
         self.EnvClass = gameenvclass
         self.opponent1 = opponent1
         self.opponent2 = opponent2
+        self.avoid_illegals = avoid_illegals
+        self.games_per_gen = games_per_gen
         final_path = os.path.join(self.path, config_file_name)
 
         config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
