@@ -1,6 +1,6 @@
 import numpy as np
 from GameSystem.game import Game, GameEnvironment
-from Utility import MaxN
+from Utility import MaxN, random_highest_index
 
 class Opponent(object):
     """
@@ -123,8 +123,7 @@ class HyperionOpponent(Opponent):
         for move in range(1,10):
             if self.g.is_legal(move, board):
                 choices[move] = self.g.get_attack_score(move, player, board)
-        max_indexes = np.where(np.asarray(choices) == max(choices))[0]
-        return np.random.choice(max_indexes)
+        return random_highest_index(choices)
 
 class MMOpponent(Opponent):
     """

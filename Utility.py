@@ -40,3 +40,9 @@ def convert_data_to_state(game, current_player, next_player):
     board = game.matrix.copy()
     return np.append(board, [current_player, next_player])
 
+def random_highest_index(scores):
+    """
+    Returns a random index out of all the maximum values of scores
+    """
+    max_indexes = np.where(np.asarray(scores) == max(scores))[0]
+    return np.random.choice(max_indexes)

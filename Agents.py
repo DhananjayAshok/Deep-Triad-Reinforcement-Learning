@@ -5,6 +5,7 @@ import os
 import pickle
 from NeuralNetworks import NaiveNetwork, AssistedNetwork
 import random
+from Utility import random_highest_index
 
 
 
@@ -385,7 +386,7 @@ class NEATAgent(TrainableAgent):
         Play a move from the genome network
         """
         output = self.net.activate(tuple(state))
-        return np.argmax(output)+1
+        return random_highest_index(output)+1
 
     def update_fitness(self, value):
         """

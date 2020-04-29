@@ -207,6 +207,12 @@ class NEATArena(object):
     Class to run the genetic algorithms training
     """
     import neat
+    import os
+    def __init__(self, path):
+        """
+        path: the path argument that will lead to the directory which holds all config files
+        """
+        self.path = path
 
     def eval_genomes(self, genomes, config):
         agents = []
@@ -235,7 +241,7 @@ class NEATArena(object):
             player_moves+=1
 
 
-    def simulate(config_file_path, gameenvclass, opponent1, opponent2, no_gens=100):
+    def simulate(config_file_name, gameenvclass, opponent1, opponent2, no_gens=100):
         """
         Performs the NEAT Algorithm on the given agent|
         config_file_path: path to the config file that should exist
@@ -246,9 +252,11 @@ class NEATArena(object):
         self.EnvClass = gameenvclass
         self.opponent1 = opponent1
         self.opponent2 = opponent2
+        final_path = os.path.join(self.path, config_file_name)
+
         config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                         config_file_path)
+                         final_path)
 
         # Create the population, which is the top-level object for a NEAT run.
         p = neat.Population(config)
