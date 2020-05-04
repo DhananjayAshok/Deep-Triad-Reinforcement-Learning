@@ -3,7 +3,7 @@ from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent , MMOppone
 from GameSystem.game import Game
 import os
 import pickle
-from NeuralNetworks import NaiveNetwork, AssistedNetwork
+from NeuralNetworks import NaiveNetwork, AssistedNetwork, SimpleNetwork, FeaturedNetwork, ConvNetwork
 import random
 from Utility import random_highest_index
 import neat
@@ -306,8 +306,7 @@ class DeepQAgent(QAgent):
 
 
     def estimate_from_state_action(self, state, action):
-        pred = self.model.predict([state])[0]
-        return pred[action-1]
+        raise NotImplementedError
 
     def learn(self, queue):
         """
@@ -357,22 +356,52 @@ class DeepQAgent(QAgent):
     def estimate_from_q_vector(self, q_vector):
         raise NotImplementedError("Not supposed to have q_vector")
 
-class NaiveDeepQAgent(DeepQAgent):
+class BroadAgent(DeepQAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_name="DQA"):
+        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name, min_replay_to_fit, avoid_assist, win, block)
+
+    def estimate_from_state_action(self, state, action):
+        pred = self.model.predict([state], actions=[action])[0]
+        return pred[action-1]
+
+class NarrowAgent(DeepQAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_name="DQA"):
+        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, avoid_assist=avoid_assist, win=win, block=block)
+
+    def estimate_from_state_action(self, state, action):
+        pred = self.model.predict([state], actions=[action])[0]
+        return pred
+
+class NaiveDeepQAgent(BroadAgent):
     """
     Naive Simple Neural Net
     """
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_name="DQA"):
-        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        BroadAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = NaiveNetwork(avoid_assist=avoid_assist, win_assist=win, block_assist = block)
 
-class AssistedDeepQAgent(DeepQAgent):
+class AssistedDeepQAgent(BroadAgent):
     """
     Heavily customized feature inputs to try to make the best performing network
     """
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ADQA"):
-        DeepQAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        BroadAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = AssistedNetwork()
 
+class SimpleDeepAgent(NarrowAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="SimpleDeepModel"):
+        NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = SimpleNetwork()
+
+class FeaturedDeepAgent(NarrowAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="FeaturedDeepModel"):
+        NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = FeaturedNetwork()
+
+class ConvAgent(NarrowAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ConvDeepModel"):
+        NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = ConvNetwork()
 #endregion
 
 class NEATAgent(TrainableAgent):

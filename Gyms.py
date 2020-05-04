@@ -245,7 +245,7 @@ class NEATArena(object):
                 player_moves+=1
 
 
-    def simulate(self, config_file_name, gameenvclass, opponent1, opponent2, games_per_gen = 5, no_gens=100, avoid_illegals=True):
+    def simulate(self, config_file_name, gameenvclass, opponent1, opponent2, games_per_gen = 10,no_gens=100, avoid_illegals=True):
         """
         Performs the NEAT Algorithm on the given agent|
         config_file_path: path to the config file that should exist

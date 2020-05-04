@@ -1,13 +1,11 @@
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout
 import numpy as np
 from keras.models import load_model
 from keras.initializers import Zeros
 from collections import deque
 from GameSystem.game import Game
 
-class NeuralNetwork(object):
-    """description of class"""
 
 class DeepQNetwork(object):
     """
@@ -52,26 +50,14 @@ class DeepQNetwork(object):
         Check to see if prev model needs to be updated
         """
         
-        states = np.array([self.transform_state(transition[0]) for transition in minibatch])
-        next_states = np.array([self.transform_state(transition[0]) for transition in minibatch])
-        q_targets = self.prev_model.predict(states)
-        next_q_values = self.prev_model.predict(next_states)
+        
+        
 
         X = []
         y = []
         for i, (state, action, reward, next_state, done) in enumerate(minibatch):
-            X.append(self.transform_state(state))
-
-            q_target = q_targets[i]
-            if not done:
-                q_target[action-1] = reward + discount * max(next_q_values[i])
-            else:
-                q_target[action-1] = reward
-
-            q_target = self.additional_q_target_process(state, q_target)
-
-            y.append(q_target)
-
+            X.append(self.prepare_X(state=state, action=action))
+            y.append(self.prepare_y(state=state, reward=reward, next_state=next_state, discount=discount, done=done))
         X = np.array(X, dtype=np.int8)
         y = np.array(y)
 
@@ -81,13 +67,17 @@ class DeepQNetwork(object):
         if self.update_prev_model_checks():
             self.update_prev_model()
 
-    def predict(self, X):
+    def predict(self, states, **kwargs):
         """
         Returns the predictions as per the main model
-        X is just the state representation
+        states is just the list of state representations
+        actions provided is a list of actions with same size as states
         """
-
-        X = np.array([self.transform_state(i) for i in X])
+        actions =  kwargs['actions']
+        X = []
+        for i, state in enumerate(states):
+            X.append(self.transform_state(state,action=actions[i]))
+        X = np.array(X)
         return self.main_model.predict(X)
 
     def save(self, final_path):
@@ -100,17 +90,53 @@ class DeepQNetwork(object):
         self.main_model = load_model(final_path)
         self.update_prev_model()
         return
+    
+    def prepare_X(self, **kwargs):
+        raise NotImplementedError
+
+    def prepare_y(self, **kwargs):
+        raise NotImplementedError
 
     def create_model(self):
         raise NotImplementedError
 
-    def transform_state(self, state):
+    def transform_state(self, state, **kwargs):
         raise NotImplementedError
     def additional_q_target_processes(self, state, q_target):
         raise NotImplementedError
 
 
-class NaiveNetwork(DeepQNetwork):
+class BroadNet(DeepQNetwork):
+    def __init__(self, update_every):
+        DeepQNetwork.__init__(self, update_every)
+
+
+    def prepare_X(self, **kwargs):
+        """
+        Returns a prepared state for X
+        """
+        state = kwargs['state']
+        return self.transform_state(state)
+
+    def prepare_y(self, **kwargs):
+       """
+       Prepares a q_targets vector
+       """
+       state = kwargs['state']
+       next_state = kwargs['next_state']
+       discount = kwargs['discount']
+       reward = kwargs['reward']
+       q_target = self.prev_model.predict(self.transform_state(state))
+       next_q_values = self.prev_model.predict(self.transform_state(next_state))
+       if not kwargs['done']:
+           q_target[action-1] = reward + discount * max(next_q_values[i])
+       else:
+           q_target[action-1] = reward
+       return self.additional_q_target_process(state, q_target)
+
+        
+
+class NaiveNetwork(BroadNet):
     def __init__(self, update_every=1000, avoid_assist=False, win_assist=False, block_assist=False):
         """
         Creates a model with architecture
@@ -127,7 +153,7 @@ class NaiveNetwork(DeepQNetwork):
         self.block_assist = block_assist
         DeepQNetwork.__init__(self, update_every)
 
-    def transform_state(self, state):
+    def transform_state(self, state, **kwargs):
         return state
 
     def create_model(self):
@@ -203,7 +229,7 @@ class NaiveNetwork(DeepQNetwork):
             q_target[winner] = -5
         return q_target
 
-class AssistedNetwork(DeepQNetwork):
+class AssistedNetwork(BroadNet):
     def __init__(self, update_every=1000):
         """
         
@@ -226,7 +252,7 @@ class AssistedNetwork(DeepQNetwork):
         model.compile("adam", loss="mse", metrics=["accuracy"])
         return model
 
-    def transform_state(self, state):
+    def transform_state(self, state, **kwargs):
         """
         Will do the following feature transformation and addition
             Will add the following vector for every action 1 if the statements are true, 0 if false , [move_legal, legal and winning, legal and losing]
@@ -280,3 +306,195 @@ class AssistedNetwork(DeepQNetwork):
     def additional_q_target_process(self, state, q_target):
         return q_target
 
+class SingleNet(DeepQNetwork):
+    def __init__(self, update_every=1000):
+        DeepQNetwork.__init__(self, update_every)
+
+    def prepare_X(self, **kwargs):
+        """
+        Use state action pair
+        """
+        state = kwargs['state']
+        action = kwargs['action']
+        return self.transform_state(state, action=action)
+
+
+    def prepare_y(self, **kwargs):
+        state = kwargs['state']
+        next_state = kwargs['next_state']
+        discount = kwargs['discount']
+        reward = kwargs['reward']
+        done = kwargs['done']
+        if not done:
+            next_values = []
+            for act in range(1, 10):
+                inp = np.array([self.transform_state(state=next_state, action=act)])
+                #print(inp.shape)
+                pred = self.prev_model.predict(inp)
+                next_values.append(pred[0])
+            return reward + discount * max(next_values)
+        else:
+            return reward
+
+
+    def transform_state(self, state, **kwargs):
+        raise NotImplementedError
+
+class SimpleNetwork(SingleNet):
+    """
+    Takes as input state action pairs and outputs the q value expected
+    """
+    def __init__(self, update_every=1000):
+        SingleNet.__init__(self, update_every)
+
+    def transform_state(self, state, **kwargs):
+        """
+        Returns state action
+        """
+        return np.append(state, kwargs['action'])
+
+    def create_model(self):
+        """
+        Has an architecture with inputs -> 32 -> 64 -> 32 -> 1
+        """
+        model = Sequential()
+        model.add(Dense(32, activation="relu", kernel_initializer=Zeros(), input_shape=(30,)))
+        model.add(Dense(64, activation="relu"))
+        model.add(Dense(32, activation="relu"))
+        model.add(Dense(1, activation="linear", kernel_initializer=Zeros()))
+        model.compile("adam", loss="mse", metrics=["accuracy"])
+        return model
+
+class FeaturedNetwork(SingleNet):
+    """
+    Takes as input (action, state, move_legal, move_winning, move_losing, {p1, p2, p3} x 49 for every winning line)
+    """
+    def __init__(self, update_every=1000):
+        SingleNet.__init__(self, update_every)
+        
+
+    def transform_state(self, state, **kwargs):
+        """
+        Returns as needed
+        """
+        final = np.append(np.asarray([kwargs['action']]), state)
+        final = np.append(final, self.handle_move_details(state, kwargs['action']))
+        winlinelist = []
+        board = np.reshape(state[0:27], (3,3,3)).copy()
+        self.g.matrix = board
+        for line in self.g.win_lines:
+            p0 = self.g.piece_at(line.point0)
+            p1 = self.g.piece_at(line.point1)
+            p2 = self.g.piece_at(line.point2)
+            winlinelist.extend([p0, p1, p2])
+        return np.append(final, winlinelist)
+
+    def create_model(self):
+        model = Sequential()
+        model.add(Dense(128, activation="relu", kernel_initializer=Zeros(), input_shape=(180,)))
+        model.add(Dense(64, activation="relu"))
+        model.add(Dense(32, activation="relu"))
+        model.add(Dense(1, activation="linear", kernel_initializer=Zeros()))
+        model.compile("adam", loss="mse", metrics=["accuracy"])
+        return model
+    
+
+    def handle_move_details(self, state, action):
+        """
+        Similar to the function in assisted network: returns a list of 3 elements
+        """
+        curr = state[27]
+        next = state[28]
+        board = np.reshape(state[:27],(3,3,3)).copy()
+        if not self.g.is_legal(action, board=board):
+            return [0, 0, 1]
+            #print("Section 0")
+        else:
+            if self.g.check_for_win(action, curr, board=board) == curr: # Then win is 1, lose is 0 and attack score is a very high number
+                return [1, 1, 0]
+                #print("Section 1")
+            else:
+                a = self.g.play(action, curr, board=board)
+                # If Game is draw lose is 0 and attack score is 0
+                if a == -1:
+                    return [1, 0, 0]
+                    #print("Section 2")
+                elif a == 0:
+                    flag = False
+                    for next_action in range(1,10):
+                        if self.g.is_legal(next_action, board=board) and self.g.check_for_win(next_action, next, board=board):
+                            flag = True
+                            return [1, 0, 1]
+                    if not flag:
+                        return [1, 0, 0]
+
+
+class ConvNetwork(SingleNet):
+    def __init__(self, update_every=1000):
+        SingleNet.__init__(self, update_every)
+
+    def transform_state(self, state, **kwargs):
+        """
+        Returns in the shape
+        [
+        [x, x, x], 
+        [x, x, x],
+        [x, x, x], 
+        [action, action, action]
+        ]
+        with 1 being player, 2 being next and 3 being 3rd after player
+        """
+        action = kwargs['action']
+        minilist = [action, action, action]
+        board = self.board_review(state)
+        return np.append(board, minilist).reshape((4, 3, 3))
+
+
+
+    def board_review(self, state):
+        """
+        Takes in a board and subs in values such that the player is always 1 and next player is always 2
+        """
+        player = state[27]
+        next = state[28]
+        third = next%3+1
+        player_token = 10
+        next_token = 20
+        thrid_token = 30
+        
+        for i, item in enumerate(state[0:27]):
+            if item == player:
+                state[i] = player_token
+            elif item == next:
+                state[i] = next_token
+            elif item == third:
+                state[i] = third_token
+            else:
+                pass
+
+        for i, item in enumerate(state[0:27]):
+            if item == player_token:
+                state[i] = 1
+            elif item == next_token:
+                state[i] = 2
+            elif item == third_token:
+                state[i] = 3
+            else:
+                pass
+
+        return state[0:27]
+
+
+
+    def create_model(self):
+        """
+        Has an architecture with inputs -> 32 -> 64 -> 32 -> 1
+        """
+        model = Sequential()
+        model.add(Conv2D(32, activation="relu", input_shape=(4,3,3)))
+        model.add(MaxPooling2D())
+        model.add(Flatten())
+        model.add(Dense(64, activation="relu"))
+        model.add(Dense(1, activation="linear"))
+        model.compile("adam", loss="mse", metrics=["accuracy"])
+        return model
