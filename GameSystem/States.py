@@ -1,9 +1,4 @@
-#Imports Here
-import numpy as np
-
-
-
-
+#Core Imports Here
 ##############################################################################################
 
 class State(object):
@@ -14,6 +9,7 @@ class State(object):
 
 # Implement Your Custom Classes Below
 ##############################################################################################
+import numpy as np
 
 class TicTacToe3DState(State):
     

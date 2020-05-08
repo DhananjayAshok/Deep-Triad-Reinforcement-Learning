@@ -1,10 +1,5 @@
-#Imports Here
-import numpy as np
-from .Games import TicTacToe3DGame
-from .States import TicTacToe3DState
-
-
-
+#region
+#Core Imports Here
 
 ##############################################################################################
 
@@ -31,6 +26,12 @@ class Environment(object):
 
 # Implement Your Custom Classes Below
 ##############################################################################################
+#endregion
+
+import numpy as np
+from .Games import TicTacToe3DGame
+from .States import TicTacToe3DState
+
 
 class TicTacToe3DEnvironment(Environment):
     """

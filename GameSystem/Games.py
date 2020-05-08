@@ -1,5 +1,5 @@
-import numpy as np
-
+#Core Imports Here
+##############################################################################################
 
 class Game(object):
     """
@@ -19,7 +19,9 @@ class Game(object):
 
     def is_legal(self, action, provided_state=None, **kwargs):
         raise NotImplementedError
-
+# Implement Your Custom Classes Below
+##############################################################################################
+import numpy as np
 
 class TicTacToe3DGame(Game):
     """

@@ -239,7 +239,6 @@ class DictionaryAgent(QAgent):
         print(f"Number of intermediate entries: {intermediates} this is {100*intermediates/non_zeroes}% of the non zero entries")
         return nz, il, win, inter
 
-
 # SKLearn Agents
 #region
 class QSKLearnAgent(QAgent):

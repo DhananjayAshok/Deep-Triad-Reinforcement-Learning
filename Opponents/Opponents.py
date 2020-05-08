@@ -1,62 +1,51 @@
-import numpy as np
-from GameSystem.Games import TicTacToe3DGame
-from GameSystem.Environments import TicTacToe3DEnvironment
+#Core Imports
+from Configs import ACTION_CLASS, GAME_CLASS, ENVIRONMENT_CLASS
+from .Opponent import Opponent
+##############################################################################################
+
 from Utility import MaxN, random_highest_index
-from GameSystem.Actions import TicTacToe3DAction
+import numpy as np
 
 
-class Opponent(object):
-    """
-    Will be an abstract parent class for various other children who implement different strategies
-    """
+class TicTacToe3DOpponent(Opponent):
     def __init__(self):
-        self.g = TicTacToe3DGame()
-        self.g_env = TicTacToe3DEnvironment()
-
-
-    def play(self, state):
-        """
-        Given the state of the game return a move that the opponent plays
-        """
-        raise NotImplementedError
-
+        Opponent.__init__(self)
 
     def blocking_move(self, state):
         """
         If the next player has any move that wins them the game return a move that blocks at least one of those moves else returns -1
         """
-        board = state[:27].reshape((3,3,3))
-        turn = state[27]
-        next = state[28]
+        board, turn, next = state.get_induviduals()
 
-        for move in range(1, 10):
-            if self.g.is_legal(move, board) and self.g.check_for_win(move, next, board) == next:
-                return move
-        return -1
+        for action in ACTION_CLASS.get_action_space():
+            if self.g.is_legal(action, board) and self.g.check_for_win(action, next, board) == next:
+                return action
+        return ACTION_CLASS(-1)
 
     def winning_move(self, state):
         """
         If there is an object that will win the AI the game this move it returns the move that wins else it returns -1
         """
-        board = state[:27].reshape((3,3,3))
-        turn = state[27]
-        next = state[28]
+        board, turn, next = state.get_induviduals()
 
-        for move in range(1, 10):
-            if self.g.is_legal(move, board) and self.g.check_for_win(move, turn, board) == turn:
-                return move
-        return -1
+        for action in ACTION_CLASS.get_action_space():
+            if self.g.is_legal(action, board) and self.g.check_for_win(action, turn, board) == turn:
+                return action
+        return ACTION_CLASS(-1)
 
-class SelfOpponent(Opponent):
+class SelfOpponent(TicTacToe3DOpponent):
     """
     Is an Opponent object for use to train the Agent against a former version of itself
     """
     pass
 
-class HumanOpponent(Opponent):
+class HumanOpponent(TicTacToe3DOpponent):
     """
     Is an Opponent object for use to test the Agent against a human
     """
+    def __init__(self):
+        TicTacToe3DOpponent.__init__(self)
+
     def play(self, state):
         print("Before Human Turn State is -")
         print(state)
@@ -68,7 +57,7 @@ class HumanOpponent(Opponent):
             except:
                 print("That move was not an integer")
             else:
-                act = TicTacToe3DAction(int(inp))
+                act = ACTION_CLASS(int(inp))
                 board, curr, next = state.get_induviduals()
                 legal = self.g.is_legal(act, board)
                 if legal:
@@ -76,9 +65,7 @@ class HumanOpponent(Opponent):
                 else:
                     print("That move was not legal")
 
-
-
-class RandomOpponent(Opponent):
+class RandomOpponent(TicTacToe3DOpponent):
     """
     Is an Opponent that plays truly random moves (that are legal)
     Can be parameterized to also
@@ -86,7 +73,7 @@ class RandomOpponent(Opponent):
         win if move exists
     """
     def __init__(self, blocking=False, winning=False):
-        Opponent.__init__(self)
+        TicTacToe3DOpponent.__init__(self)
         self.blocking = blocking
         self.winning = winning
 
@@ -96,58 +83,62 @@ class RandomOpponent(Opponent):
         """
         if self.winning:
             winmove = self.winning_move(state)
-            if (winmove != -1):
+            if (winmove.act != -1):
                 #print("Tries Winning Move")
                 return winmove
         if self.blocking:
             blockmove = self.blocking_move(state)
-            if blockmove != -1:
+            if blockmove.act != -1:
                 #print("Tries Blocking Move")
                 return blockmove
         #print("Does Neither")
+        board, player, next = state.get_induviduals()
         choices = []
-        for move in range(1, 10):
-            if self.g.is_legal(move, state[:27].reshape((3,3,3))):
-                choices.append(move)
+        for action in ACTION_CLASS.get_action_space():
+            if self.g.is_legal(action, board):
+                choices.append(action)
         #print(f"Thinks its choices are {choices}")
         return np.random.choice(choices)
 
-class HyperionOpponent(Opponent):
+class HyperionOpponent(TicTacToe3DOpponent):
     """
     Plays against Hyperion the Greedy
     """
+    def __init__(self):
+        TicTacToe3DOpponent.__init__(self)
+
     def play(self, state):
-        board = state[:27].reshape((3,3,3)).copy()
-        player = state[27]
-        next_player = state[28]
+        board, player, next_player = state.get_induviduals()
         winmove = self.winning_move(state)
-        if winmove != -1:
+        if winmove.act != -1:
             return winmove
         blockmove = self.blocking_move(state)
-        if blockmove != -1:
+        if blockmove.act != -1:
             return blockmove
-        choices = [-1 for i in range(0, 10)]
-        for move in range(1,10):
-            if self.g.is_legal(move, board):
-                choices[move] = self.g.get_attack_score(move, player, board)
-        return random_highest_index(choices)
+        choices = [-1 for i in range(0, len(ACTION_CLASS.get_action_space()))]
+        for action in ACTION_CLASS.get_action_space():
+            if self.g.is_legal(action, board):
+                choices[action.act-1] = self.g.get_attack_score(action, player, board)
+        return ACTION_CLASS(random_highest_index(choices)+1)
 
-class MMOpponent(Opponent):
+class MMOpponent(TicTacToe3DOpponent):
     """
     Plays against a minimax AI bot
     """
+    def __init__(self):
+        TicTacToe3DOpponent.__init__(self)
+
     def play(self,state):
         best_score=-10
-        board = np.reshape(state[:27],(3,3,3)).copy()
-        game=Game()
-        game.matrix = board.copy()
-        for move in range(1,10):
-            if game.is_legal(move):
-                evaluation= MaxN(state,move)
+        board, player, next = state.get_induviduals()
+        self.g.matrix = board.copy()
+        for action in  ACTION_CLASS.get_action_space():
+            if game.is_legal(action):
+                evaluation= MaxN(state,action)
                 score=evaluation[0]
                 if score>best_score:
                     best_score=score
                     #print("action is ",move)
-                    x = move
+                    x = action
         #play peice on x
         return x

@@ -1,8 +1,10 @@
-from Opponents import HumanOpponent
-from GameSystem.Environments import TicTacToe3DEnvironment
-from GameSystem.Actions import TicTacToe3DAction
+from Opponents.Opponents import HumanOpponent, HyperionOpponent, RandomOpponent
+from Configs import ACTION_CLASS, GAME_CLASS, ENVIRONMENT_CLASS
 
 
-g = TicTacToe3DEnvironment()
+g = ENVIRONMENT_CLASS()
 h = HumanOpponent()
-g.reset(h, h)
+r = RandomOpponent(blocking=True, winning=True)
+hyp = HyperionOpponent()
+
+g.reset(hyp, r)
