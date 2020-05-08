@@ -55,10 +55,16 @@ class TicTacToe3DEnvironment(Environment):
         Environment.__init__(self)
         self.g = TicTacToe3DGame()
 
-    def reset(self, opponent_1, opponent_2):
+    def reset(self, opponent_1=None, opponent_2=None, **kwargs):
         """
         will randomly assign order and present an empty field. If the first k players are opponent AIs it will return a state with k moves played.
         """
+        if opponent_1 is None or opponent_2 is None:
+            opponent_1 = kwargs.get('opponent_1', None)
+            opponent_2 = kwargs.get('opponent_2', None)
+        if opponent_1 is None or opponent_2 is None:
+            raise ValueError("Opponents not entered correctly")
+
         players = [1,2,3]
         self.agent_turn = np.random.choice(players)
         players.remove(self.agent_turn)
