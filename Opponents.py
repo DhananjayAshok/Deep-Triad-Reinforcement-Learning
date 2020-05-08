@@ -1,14 +1,17 @@
 import numpy as np
-from GameSystem.game import Game, GameEnvironment
+from GameSystem.Games import TicTacToe3DGame
+from GameSystem.Environments import TicTacToe3DEnvironment
 from Utility import MaxN, random_highest_index
+from GameSystem.Actions import TicTacToe3DAction
+
 
 class Opponent(object):
     """
     Will be an abstract parent class for various other children who implement different strategies
     """
     def __init__(self):
-        self.g = Game()
-        self.g_env = GameEnvironment()
+        self.g = TicTacToe3DGame()
+        self.g_env = TicTacToe3DEnvironment()
 
 
     def play(self, state):
@@ -56,7 +59,7 @@ class HumanOpponent(Opponent):
     """
     def play(self, state):
         print("Before Human Turn State is -")
-        self.g_env.print_state(provided=state)
+        print(state)
 
         while True:
             inp = input("Enter a legal move from 1-9")
@@ -65,11 +68,15 @@ class HumanOpponent(Opponent):
             except:
                 print("That move was not an integer")
             else:
-                legal = self.g.is_legal(int(inp), state[:27].reshape(3,3,3))
+                act = TicTacToe3DAction(int(inp))
+                board, curr, next = state.get_induviduals()
+                legal = self.g.is_legal(act, board)
                 if legal:
-                    return int(inp)
+                    return act
                 else:
                     print("That move was not legal")
+
+
 
 class RandomOpponent(Opponent):
     """

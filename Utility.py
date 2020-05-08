@@ -1,5 +1,5 @@
 import numpy as np
-from GameSystem.game import Game
+from GameSystem.Games import TicTacToe3DGame
 
 
 def MaxN(state,move):
