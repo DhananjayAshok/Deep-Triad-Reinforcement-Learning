@@ -1,5 +1,5 @@
-from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout
+from keras.models import Sequential, Model
+from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout, Input, Conv3D, Concatenate
 import numpy as np
 from keras.models import load_model
 from keras.initializers import Zeros
@@ -437,15 +437,15 @@ class ConvNetwork(SingleNet):
         """
         Returns in the shape
         [
-        [x, x, x], 
-        [x, x, x],
-        [x, x, x], 
-        [action, action, action]
+        [l0], 
+        [l1],
+        [l2], 
+        [action * 9]
         ]
         with 1 being player, 2 being next and 3 being 3rd after player
         """
         action = kwargs['action']
-        minilist = [action, action, action]
+        minilist = [action for i in range(9)]
         board = self.board_review(state)
         return np.append(board, minilist).reshape((4, 3, 3))
 
@@ -460,7 +460,7 @@ class ConvNetwork(SingleNet):
         third = next%3+1
         player_token = 10
         next_token = 20
-        thrid_token = 30
+        third_token = 30
         
         for i, item in enumerate(state[0:27]):
             if item == player:
@@ -491,10 +491,62 @@ class ConvNetwork(SingleNet):
         Has an architecture with inputs -> 32 -> 64 -> 32 -> 1
         """
         model = Sequential()
-        model.add(Conv2D(32, activation="relu", input_shape=(4,3,3)))
-        model.add(MaxPooling2D())
+        model.add(Conv2D(32, kernel_size=3, activation="relu", input_shape=(4,3,3)))
         model.add(Flatten())
         model.add(Dense(64, activation="relu"))
         model.add(Dense(1, activation="linear"))
+        model.compile("adam", loss="mse", metrics=["accuracy"])
+        return model
+
+
+class AlphaZeroNetwork(SingleNet):
+    def __init__(self, update_every=1000):
+        SingleNet.__init__(self, update_every)
+
+    def transform_state(self, state, **kwargs):
+        """
+        Performs a feature map simlilar to AlphaZero convolutions - 
+        3 cubes each with indicators if there exists a piece of player i in that spot for all i cubes
+        2 cubes indicating whose turn it is and who's next 
+        1 cube indicating the action which the user is taking
+        """
+        board = state[:27]
+        curr = state[27]
+        next = state[28]
+        last = next%3+1
+        playerboard = self.create_player_indicator_cube(board, curr)
+        nextboard = self.create_player_indicator_cube(board, next)
+        return np.array([self.create_player_indicator_cube(board, curr), self.create_player_indicator_cube(board, next), self.create_player_indicator_cube(board, last), self.create_value_cube(curr), self.create_value_cube(next), self.create_value_cube(kwargs['action'])])
+
+    def create_player_indicator_cube(self, state_slice, player):
+        """
+        Creates indicator cube as specified in transform state docstring
+        """
+        state_slice_copy = state_slice.copy()
+        for i, item in enumerate(state_slice_copy):
+            if item == player:
+                state_slice_copy[i] = 1
+            else:
+                state_slice_copy[i] = 0
+        return np.reshape(state_slice_copy, (3,3,3))
+
+    def create_value_cube(self, value):
+        """
+        Returns a cube populated only with that value
+        """
+        temp = [value for i in range(27)]
+        return np.reshape(temp, (3,3,3))
+
+    def create_model(self):
+        inp = Input(shape=(6, 3, 3, 3))
+        flat = Flatten()(inp)
+        x = Conv3D(2, 1, activation="elu")(inp)
+        x = Conv3D(2, 1, activation="elu")(x)
+        x = Flatten() (x)
+        together = Concatenate() ([x, flat])
+        final = Dense(128, activation="elu") (together)
+        final = Dense(32, activation="elu") (final)
+        outputs = Dense(1, activation= "linear") (final)
+        model = Model(inputs=inp, outputs=outputs)
         model.compile("adam", loss="mse", metrics=["accuracy"])
         return model

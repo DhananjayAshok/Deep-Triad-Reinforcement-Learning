@@ -131,12 +131,16 @@ class MMOpponent(Opponent):
     """
     def play(self,state):
         best_score=-10
-        x = 1
-        for action in range(1,10):
-            evaluation= MaxN(state)
-            score=evaluation[0]
-            if score>best_score:
-                best_score=score
-                x =action
+        board = np.reshape(state[:27],(3,3,3)).copy()
+        game=Game()
+        game.matrix = board.copy()
+        for move in range(1,10):
+            if game.is_legal(move):
+                evaluation= MaxN(state,move)
+                score=evaluation[0]
+                if score>best_score:
+                    best_score=score
+                    #print("action is ",move)
+                    x = move
         #play peice on x
         return x
