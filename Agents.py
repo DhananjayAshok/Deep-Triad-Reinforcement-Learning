@@ -3,7 +3,7 @@ from Opponents import HumanOpponent, RandomOpponent, HyperionOpponent , MMOppone
 from GameSystem.game import Game
 import os
 import pickle
-from NeuralNetworks import NaiveNetwork, AssistedNetwork, SimpleNetwork, FeaturedNetwork, ConvNetwork
+from NeuralNetworks import NaiveNetwork, AssistedNetwork, SimpleNetwork, FeaturedNetwork, ConvNetwork, AlphaZeroNetwork
 import random
 from Utility import random_highest_index
 import neat
@@ -398,10 +398,15 @@ class FeaturedDeepAgent(NarrowAgent):
         NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = FeaturedNetwork()
 
-class ConvAgent(NarrowAgent):
+class ConvDeepAgent(NarrowAgent):
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="ConvDeepModel"):
         NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
         self.model = ConvNetwork()
+
+class AlphaZeroDeepAgent(NarrowAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_name="AlphaZeroDeepModel"):
+        NarrowAgent.__init__(self, learning_rate, decay_rate, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
+        self.model = AlphaZeroNetwork()
 #endregion
 
 class NEATAgent(TrainableAgent):
