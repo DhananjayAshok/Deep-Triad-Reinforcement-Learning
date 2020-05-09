@@ -62,7 +62,7 @@ class ForwardTDLambdaGym(StandardGym):
             X_train.append(X)
             y_train.append(y)
 
-        agent.learn(np.asarray(X_train), np.asarray(y_train))
+        agent.learn(X_train=np.asarray(X_train), y_train=np.asarray(y_train))
         return
 
     def clear_dataset(self, **kwargs):
@@ -111,7 +111,7 @@ class BatchDQLearningGym(StandardGym):
         Feeds the queue to the agent
         """
         agent = kwargs.get('agent', 0)
-        agent.learn(self.dataset)
+        agent.learn(queue=self.dataset)
         return
 
     def clear_dataset(self):

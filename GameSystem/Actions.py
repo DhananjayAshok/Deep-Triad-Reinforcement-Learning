@@ -10,7 +10,16 @@ class Action(object):
         """
         raise NotImplementedError
 
-    def print(self):
+    def get_data(self):
+        """
+        Returns the details of the action that is relevant in some form described by the User
+        """
+        raise NotImplementedError
+
+    def __str__(self):
+        raise NotImplementedError
+
+    def __repr__(self):
         return str(self)
 
 # Implement Your Custom Classes Below
@@ -31,5 +40,9 @@ class TicTacToe3DAction(Action):
 
     def __str__(self):
         return str(self.act)
+
+    def get_data(self):
+
+        return self.act
 
 

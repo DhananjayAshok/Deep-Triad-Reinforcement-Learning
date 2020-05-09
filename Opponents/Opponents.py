@@ -72,10 +72,14 @@ class RandomOpponent(TicTacToe3DOpponent):
         block immediate winning moves from the next player
         win if move exists
     """
-    def __init__(self, blocking=False, winning=False):
+    def __init__(self, blocking=False, winning=False, **kwargs):
         TicTacToe3DOpponent.__init__(self)
-        self.blocking = blocking
-        self.winning = winning
+        if kwargs.get('blocking', None) is not None:
+            self.blocking = kwargs.get('blocking', False)
+            self.winning = kwargs.get('winning', False)
+        else:
+            self.blocking = blocking
+            self.winning = winning
 
     def play(self, state):
         """

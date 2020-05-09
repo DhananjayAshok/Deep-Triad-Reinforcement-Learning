@@ -1,5 +1,6 @@
 import numpy as np
 from GameSystem.Games import TicTacToe3DGame
+from GameSystem.States import TicTacToe3DState
 
 
 def MaxN(state,move):
@@ -42,12 +43,9 @@ def MaxN(state,move):
     return (best_result,best_action)
 
 
-
-
-
 def convert_data_to_state(game, current_player, next_player):
-    board = game.matrix.copy()
-    return np.append(board, [current_player, next_player])
+
+    return TicTacToe3DState(game, current_player, next_player)
 
 def random_highest_index(scores):
     """

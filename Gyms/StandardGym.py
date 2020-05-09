@@ -1,3 +1,6 @@
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+
 class StandardGym(object):
     """description of class"""
     def __init__(self, epsilon=0.5, avoid_illegal=True):
@@ -12,7 +15,7 @@ class StandardGym(object):
             return 0.0
         return self.epsilon / ((episodes+1)**0.125)
 
-    def simulate(self, agent, env, episodes=10000, show_every=1000, save_every=2000, training=True, **kwargs):
+    def simulate(self, agent, env, episodes=10000, show_every=1000, save_every=5_000, training=True, display_plot=True, **kwargs):
         """
         Prerequistes:
             Assumes **kwargs will have all required arguments to call environment.reset
@@ -24,7 +27,7 @@ class StandardGym(object):
 
         If Training is True:
                Assumes the agent has learn function implemented
-               Assumes the agent has save function implemented that can be called on with **kwargs
+               Assumes the agent has save_model function implemented that can be called on with **kwargs
 
         """
         aggr_ep_rewards = {'ep': [], 'avg': [], 'min': [], 'max': [] }
@@ -68,12 +71,13 @@ class StandardGym(object):
                     aggr_ep_rewards['max'].append(max(rewardlist))
                 rewardlist.clear()
 
-        input()
-        plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label = 'avg')
-        plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label = 'min')
-        plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label = 'max')
-        plt.legend()
-        plt.show()
+        if display_plot:
+            input("Press any key to show plot....")
+            plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label = 'avg')
+            plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label = 'min')
+            plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label = 'max')
+            plt.legend()
+            plt.show()
         
         return
 

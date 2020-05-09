@@ -22,26 +22,77 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Agents.py">
+    <Compile Include="Agents\Agent.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GameSystem\Line.py">
+    <Compile Include="Agents\Models\NeuralNetworks.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\Models\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\OpponentAgent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\QAgents\DeepQAgents.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\QAgents\DictionaryAgent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\QAgents\QAgent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\QAgents\SKLearnAgents.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\QAgents\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\TrainableAgent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\TrainableAgents\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Agents\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Configs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GameSystem\Actions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GameSystem\Environments.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GameSystem\States.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GameSystem\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Gyms.py">
+    <Compile Include="Gyms\Gyms.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Gyms\StandardGym.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Gyms\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Main.py" />
-    <Compile Include="GameSystem\game.py">
+    <Compile Include="GameSystem\Games.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="NeuralNetworks.py">
+    <Compile Include="Opponents\Opponent.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Opponents.py">
+    <Compile Include="Opponents\Opponents.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Opponents\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Utility.py">
@@ -52,7 +103,13 @@
     <InterpreterReference Include="Global|VisualStudio|Data Science" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Agents\" />
+    <Folder Include="Agents\Models\" />
+    <Folder Include="Agents\TrainableAgents\" />
+    <Folder Include="Agents\TrainableAgents\QAgents\" />
     <Folder Include="GameSystem\" />
+    <Folder Include="Gyms\" />
+    <Folder Include="Opponents\" />
     <Folder Include="Plans\" />
   </ItemGroup>
   <ItemGroup>

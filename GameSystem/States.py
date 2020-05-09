@@ -6,6 +6,15 @@ class State(object):
     def __str__(self):
         raise NotImplementedError
 
+    def __repr__(self):
+        return str(self)
+
+    def get_data(self):
+        """
+        Returns the details of the state that is relevant in some form described by the User
+        """
+        raise NotImplementedError
+
 
 # Implement Your Custom Classes Below
 ##############################################################################################
@@ -36,6 +45,10 @@ class TicTacToe3DState(State):
         Returns the unpacked tuple - board, current player, next player
         """
         return self.rep[:27].reshape((3,3,3)), self.rep[27], self.rep[28]
+
+    def get_data(self):
+
+        return self.rep.copy()
 
 
 
