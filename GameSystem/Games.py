@@ -45,13 +45,18 @@ class TicTacToe3DGame(Game):
         """
         return self.matrix
 
-    def is_legal(self, action, board=None):
+    def is_legal(self, action, provided_state=None):
         """
         returns true iff the proposed move is legal given the board at its current state
         """
         if not (1 <= action.act <= 9):
             return False
         else:
+            if provided_state is None:
+                board = self.matrix
+            else:
+                board, curr, next = provided_state.get_induviduals()
+
             decoded = self._decode_action(action, board)
             return decoded[0] <= 2
 

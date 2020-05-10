@@ -16,10 +16,9 @@ class QAgent(TrainableAgent):
         Epsilon Greedy
         Manually Avoids Illegal Moves if avoid_illegal is True
         """
-        board, curr, next = state.get_induviduals()
         choices = []
         for act in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(act, board) or not avoid_illegal:
+            if self.g.is_legal(act, state) or not avoid_illegal:
                 choices.append(act)
 
         if np.random.random() > real_epsilon:

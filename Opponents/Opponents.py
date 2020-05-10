@@ -18,7 +18,7 @@ class TicTacToe3DOpponent(Opponent):
         board, turn, next = state.get_induviduals()
 
         for action in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(action, board) and self.g.check_for_win(action, next, board) == next:
+            if self.g.is_legal(action, state) and self.g.check_for_win(action, next, board) == next:
                 return action
         return ACTION_CLASS(-1)
 
@@ -29,7 +29,7 @@ class TicTacToe3DOpponent(Opponent):
         board, turn, next = state.get_induviduals()
 
         for action in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(action, board) and self.g.check_for_win(action, turn, board) == turn:
+            if self.g.is_legal(action, state) and self.g.check_for_win(action, turn, board) == turn:
                 return action
         return ACTION_CLASS(-1)
 
@@ -59,7 +59,7 @@ class HumanOpponent(TicTacToe3DOpponent):
             else:
                 act = ACTION_CLASS(int(inp))
                 board, curr, next = state.get_induviduals()
-                legal = self.g.is_legal(act, board)
+                legal = self.g.is_legal(act, state)
                 if legal:
                     return act
                 else:
@@ -96,10 +96,9 @@ class RandomOpponent(TicTacToe3DOpponent):
                 #print("Tries Blocking Move")
                 return blockmove
         #print("Does Neither")
-        board, player, next = state.get_induviduals()
         choices = []
         for action in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(action, board):
+            if self.g.is_legal(action, state):
                 choices.append(action)
         #print(f"Thinks its choices are {choices}")
         return np.random.choice(choices)
@@ -121,7 +120,7 @@ class HyperionOpponent(TicTacToe3DOpponent):
             return blockmove
         choices = [-1 for i in range(0, len(ACTION_CLASS.get_action_space()))]
         for action in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(action, board):
+            if self.g.is_legal(action, state):
                 choices[action.act-1] = self.g.get_attack_score(action, player, board)
         return ACTION_CLASS(random_highest_index(choices)+1)
 
