@@ -65,23 +65,3 @@ class DeepQAgent(QAgent):
         return pred
 
 ##############################################################################################
-from Agents.Models.NeuralNetworks import SimpleNetwork,  ConvNetwork, AlphaZeroNetwork
-
-class SimpleDeepAgent(DeepQAgent):
-    """
-    Simplest Possible Neural Network Configured to predict q values
-    """
-    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_path="models/DeepQAgents", model_name="SimpleDeepModel"):
-        DeepQAgent.__init__(self, learning_rate, decay_rate, model_path=model_path, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
-        self.model = SimpleNetwork()
-
-
-class ConvDeepAgent(DeepQAgent):
-    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_path="models/DeepQAgents", model_name= "ConvDeepModel"):
-        DeepQAgent.__init__(self, learning_rate, decay_rate, model_path=model_path, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
-        self.model = ConvNetwork()
-
-class AlphaZeroDeepAgent(DeepQAgent):
-    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, model_path="models/DeepQAgents", model_name="AlphaZeroModel"):
-        DeepQAgent.__init__(self, learning_rate, decay_rate, model_path=model_path, model_name=model_name, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size)
-        self.model = AlphaZeroNetwork()
