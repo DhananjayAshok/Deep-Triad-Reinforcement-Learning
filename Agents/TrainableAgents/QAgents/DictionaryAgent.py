@@ -85,6 +85,64 @@ class DictionaryAgent(QAgent):
 
 # Implement Your Custom Classes Below
 ##############################################################################################
+class TicTacToe3DDictionaryAgent(DictionaryAgent):
+    """
+    Dictionary Agent for 3D Tic Tac Toe
+    """
+    def __init__(self, learning_rate, decay_rate, model_path="models/Dictionary", model_name="dict"):
+        DictionaryAgent.__init__(self, learning_rate, decay_rate, model_path, model_name)
 
+    def heavy_learn(self, state):
+        """
+        Manually Learn all illegal moves and winning moves from a given state
+        """
+        board, player, next = state.get_induviduals()
+        self.g.matrix = board.copy()
+        for act in ACTION_CLASS.get_action_space() :
+            if not self.g.is_legal(act):
+                #tempvec = tuple(self.create_q_vector(state, act))
+                #self.d[tempvec] = -10
+                pass
+            else:
+                winner = self.g.check_for_win(act, player)
+                if winner > 0:
+                    tempvec = tuple(self.create_q_vector(state, act))
+                    self.d[tempvec] = 5
+        return
+
+    def stats(self):
+        """
+        Returns lists nonzeros, illegals, winners, intermediates
+        """
+        l = len(self.d)
+        print(f"Number of Entries: {l}")
+        non_zeroes = 0
+        illegals = 0
+        winners = 0
+        intermediates = 0
+        nz = []
+        il = []
+        win = []
+        inter = []
+        for key in self.d:
+            val = self.d[key]
+            if val != 0:
+                non_zeroes += 1
+                nz.append(key)
+                if val <= -10:
+                    illegals += 1
+                    il.append(key)
+                elif val == 1:
+                    winners += 1
+                    win.append(key)
+                elif val > 0:
+                    intermediates += 1
+                    inter.append(key)
+
+        print(f"Number of non zero entries: {non_zeroes} this is {100*non_zeroes/l}% of the dictionary")
+        print(f"Number of illegal entries: {illegals} this is {100*illegals/non_zeroes}% of the non zero entries")
+        print(f"Number of winning entries: {winners} this is {100*winners/non_zeroes}% of the non zero entries")
+        print(f"Number of intermediate entries: {intermediates} this is {100*intermediates/non_zeroes}% of the non zero entries")
+        return nz, il, win, inter
 
 
