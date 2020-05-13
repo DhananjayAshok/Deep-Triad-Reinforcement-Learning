@@ -1,7 +1,7 @@
 #Core Imports Here
 from Configs import GAME_CLASS
 from keras.models import Sequential, Model
-from keras.layers import Dense, Flatten, Input
+from keras.layers import Dense, Flatten, Input, Conv2D
 from keras.initializers import Zeros
 import numpy as np
 from Configs import ACTION_CLASS
@@ -122,3 +122,29 @@ class DeepQNetwork(object):
 
 # Implement Your Custom Classes Below
 ##############################################################################################
+
+class ConvNet(DeepQNetwork):
+    def __init__(self, update_every=1000):
+        DeepQNetwork.__init__(update_every=update_every)
+
+    def create_model(self):
+        model = Sequential()
+        model.add(Conv2D(16, 1, activation="relu"))
+        model.add(Flatten())
+        model.add(Dense(128, activation="relu"))
+        model.add(Dense(32, activation="relu"))
+        model.add(Dense(1, activation="linear"))
+        model.compile("adam", loss="mse")
+        return model
+
+    def transform_input(self, state, **kwargs):
+        action = kwargs['action']
+        move = action.get_data()
+        board, turn = state.get_induviduals()
+        return np.array([board, self.fill(action), self.fill(turn)])
+
+    def fill(self, turn):
+        return np.reshape([turn for i in range(36)], (6,6))
+
+    def additional_q_target_processes(self, state, q_target):
+        return super().additional_q_target_processes(state, q_target)

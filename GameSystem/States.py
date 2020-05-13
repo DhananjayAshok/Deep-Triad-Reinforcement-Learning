@@ -36,5 +36,8 @@ class Connect4State(State):
     def get_turn(self):
         return self.rep[36]
 
+    def get_induviduals(self):
+        return self.get_board(), self.get_turn()
+
 
 

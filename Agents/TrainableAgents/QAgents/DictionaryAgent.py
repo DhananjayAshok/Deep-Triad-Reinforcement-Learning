@@ -39,7 +39,7 @@ class DictionaryAgent(QAgent):
                     next_vec = self.create_q_vector(next_state, act)
                     temp_vectuple = tuple(np.append(next_vec[0].get_data(), next_vec[1].get_data()))
                     values.append(self.estimate_from_q_vector(next_vec))
-                if reward <= -10:
+                if reward < -10:
                     pass
                 else:
                     self.d[vectuple] = reward + self.decay_rate* max(values)

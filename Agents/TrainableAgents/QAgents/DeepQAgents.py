@@ -65,3 +65,9 @@ class DeepQAgent(QAgent):
         return pred
 
 ##############################################################################################
+from Agents.Models.NeuralNetworks import ConvNet
+
+class ConvAgent(DeepQAgent):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1000, model_path="models/DeepQAgents", model_name="ConvAgent"):
+        super().__init__(learning_rate, decay_rate, min_replay_to_fit, minibatch_size, model_path=model_path, model_name=model_name)
+        self.model = ConvNet(update_every=500)
