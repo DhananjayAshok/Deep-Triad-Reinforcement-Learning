@@ -49,10 +49,10 @@ class Connect4Environment(Environment):
             raise ValueError("Reset called without opponent")
         self.turn = 1
         turns = [1, 2]
-        self.player_turn = np.random.choice(turns)
-        turns.remove(player_turn)
+        self.agent_turn = np.random.choice(turns)
         self.g.restart()
-        self.opponent_move()
+        if self.agent_turn != 1:
+            self.opponent_move()
         return self.get_state()
 
     def opponent_move(self):
@@ -78,10 +78,11 @@ class Connect4Environment(Environment):
         """
         
 
-        if not self.g.is_legal(act):
+        if not self.g.is_legal(action):
+            print(f"Illegal Move was made")
             return self.get_state(), self.illegal_reward, False
 
-        winner = self.g.play(act, self.turn)
+        winner = self.g.play(action, self.turn)
         if winner == self.turn:
             self.increment_turn()
             return self.get_state(), self.win_reward, True

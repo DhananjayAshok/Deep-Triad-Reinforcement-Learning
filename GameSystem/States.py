@@ -33,5 +33,8 @@ class Connect4State(State):
     def get_board(self):
         return self.rep[:36].reshape((6,6))
 
+    def get_turn(self):
+        return self.rep[36]
+
 
 

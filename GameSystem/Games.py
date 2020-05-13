@@ -31,19 +31,23 @@ class Connect4Game(Game):
     def restart(self):
         self.grid = np.zeros((6,6), dtype=np.int32)
 
-    def play(self, action, player, provided_state=None):
+    def play(self, action, player, provided_state=None, provided_board=None):
         """
         Play a move on the grid of the object and return a number to indicate the winner
         1 -> player 1
         2 -> player 2
         0 -> ongoing
         -1 -> draw
+
+        priority given to provided_board
         """
         board = self.grid
-        if provided_state is not None:
+        if provided_board is not None:
+            board = provided_board
+        elif provided_state is not None:
             board = provided_state.get_board()
         if self.is_legal(action, provided_state=provided_state):
-            move_y, move_x = self.decode_action(self, action, provided_state)
+            move_y, move_x = self.decode_action(action, provided_state)
             board[move_y, move_x] = player
         return self.winner(provided_board=board)
 
@@ -98,7 +102,7 @@ class Connect4Game(Game):
             board = provided_state.get_board()
 
         for win in self.winlines:
-            temp = self.piece_at(point0, provided_board=board)
+            temp = self.piece_at(win.point0, provided_board=board)
             if temp != 0:
                 if temp == self.piece_at(win.point1, provided_board=board) == self.piece_at(win.point2, provided_board=board) == self.piece_at(win.point3, provided_board=board):
                     return temp
@@ -108,6 +112,25 @@ class Connect4Game(Game):
 
         return 0
 
+    def check_for_win(self, action, proposed_player, provided_state=None):
+        """
+        Returns True iff the proposed action from the proposed player wins the game
+        """
+        if not self.is_legal(action, provided_state):
+            return False
+
+        temp = self.grid.copy()
+        if provided_state is not None:
+            temp = provided_state.get_board().copy()
+
+        return self.play(action,proposed_player, provided_board=temp) == proposed_player
+
+
+        
+
+
+
+        
 
 
 
@@ -168,7 +191,7 @@ def get_winlines():
     dir = [-1, 0]
     for item in [5, 4, 3]:
         for i in range(6):
-            lines.append(Line[item, i], dir)
+            lines.append(Line([item, i], dir))
 
     # All horizontal lefts
     dir = [0, -1]
