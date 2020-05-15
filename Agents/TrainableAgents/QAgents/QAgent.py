@@ -1,5 +1,7 @@
 from Agents.TrainableAgents.TrainableAgent import TrainableAgent
-from Configs import ACTION_CLASS
+from GameSystem.Actions import Connect4Action
+from GameSystem.Games import Connect4Game
+from GameSystem.Environments import Connect4Environment
 import numpy as np
 
 class QAgent(TrainableAgent):
@@ -17,7 +19,7 @@ class QAgent(TrainableAgent):
         Manually Avoids Illegal Moves if avoid_illegal is True
         """
         choices = []
-        for act in ACTION_CLASS.get_action_space():
+        for act in Connect4Action.get_action_space():
             if self.g.is_legal(act, state) or not avoid_illegal:
                 choices.append(act)
 

@@ -1,6 +1,8 @@
 #Core Imports Here
 from Agents.TrainableAgents.QAgents.QAgent import QAgent
-from Configs import ACTION_CLASS
+from GameSystem.Actions import Connect4Action
+from GameSystem.Games import Connect4Game
+from GameSystem.Environments import Connect4Environment
 import os
 import pickle
 import numpy as np
@@ -33,7 +35,7 @@ class DictionaryAgent(QAgent):
             if done:
                 self.d[vectuple] = reward
             else:
-                next_actions = ACTION_CLASS.get_action_space()
+                next_actions = Connect4Action.get_action_space()
                 values = []
                 for act in next_actions:
                     next_vec = self.create_q_vector(next_state, act)

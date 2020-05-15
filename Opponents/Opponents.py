@@ -1,7 +1,9 @@
 #Core Imports
-from Configs import ACTION_CLASS, GAME_CLASS, ENVIRONMENT_CLASS
 from .Opponent import Opponent
 ##############################################################################################
+from GameSystem.Actions import Connect4Action
+from GameSystem.Games import Connect4Game
+from GameSystem.Environments import Connect4Environment
 import numpy as np
 
 class HumanOpponent(Opponent):
@@ -16,7 +18,7 @@ class HumanOpponent(Opponent):
         except:
             print("move not an integer try again")
             self.play(state)
-        action = ACTION_CLASS(move)
+        action = Connect4Action(move)
         if not self.g.is_legal(action, provided_state=state):
             print("Move not valid try again")
             self.play(state)
@@ -48,7 +50,7 @@ class RandomOpponent(Opponent):
                 status = self.g.play(action, state.get_turn())
                 if status != 0:
                     break
-                for act in ACTION_CLASS.get_action_space():
+                for act in Connect4Action.get_action_space():
                     if self.g.check_for_win(act, state.get_turn()%2+1):
                         losers.append(action)
                         break
@@ -56,7 +58,7 @@ class RandomOpponent(Opponent):
         return list(set(legals).difference(set(losers)))
 
     def play(self, state):
-        choices = ACTION_CLASS.get_action_space()
+        choices = Connect4Action.get_action_space()
         legals = []
         for choice in choices:
             if self.g.is_legal(choice, provided_state=state):

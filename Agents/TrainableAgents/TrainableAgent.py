@@ -1,5 +1,7 @@
 from Agents.Agent import Agent
-from Configs import GAME_CLASS
+from GameSystem.Actions import Connect4Action
+from GameSystem.Games import Connect4Game
+from GameSystem.Environments import Connect4Environment
 
 class TrainableAgent(Agent):
     """
@@ -10,7 +12,7 @@ class TrainableAgent(Agent):
         self.decay_rate = decay_rate
         self.model_name = model_name
         self.model_path = model_path
-        self.g = GAME_CLASS()
+        self.g = Connect4Game()
 
     def learn(self, dataset, **kwargs):
         raise NotImplementedError

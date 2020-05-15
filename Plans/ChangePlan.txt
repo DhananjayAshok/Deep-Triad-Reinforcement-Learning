@@ -1,0 +1,3 @@
+0. Default -> Insanely long
+1. Remove Class Aliasing at all levels -> 
+2. 
