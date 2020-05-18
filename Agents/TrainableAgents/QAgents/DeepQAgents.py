@@ -6,7 +6,7 @@ class DeepQAgent(QAgent):
     """
     Abstract Neural Network Class To predict QValue
     """
-    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_path="models/DeepQAgents", model_name="DQA"):
+    def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_001, minibatch_size=1_000, avoid_assist=False, win=False, block=False, model_path="models/DeepQAgents", model_name="DQA"):
         QAgent.__init__(self, learning_rate, decay_rate, model_path, model_name)
         self.minibatch_size = minibatch_size
         self.min_replay_to_fit=min_replay_to_fit
@@ -25,7 +25,7 @@ class DeepQAgent(QAgent):
         if len(queue) < self.min_replay_to_fit:
             print(f"DID NOT FIT because queue length {len(queue)}")
             return
-
+        #print(len(queue), self.minibatch_size, self.min_replay_to_fit)
         minibatch = random.sample(queue, self.minibatch_size)
         self.model.train(minibatch, self.decay_rate)
         return
@@ -45,7 +45,7 @@ class DeepQAgent(QAgent):
         self.model.save(final_path)
         return
 
-    def load_model(self):
+    def load(self):
         """
         Loads model if its in the path provided
         """
@@ -69,5 +69,5 @@ from Agents.Models.NeuralNetworks import ConvNet
 
 class ConvAgent(DeepQAgent):
     def __init__(self, learning_rate, decay_rate, min_replay_to_fit=1_000, minibatch_size=1000, model_path="models/DeepQAgents", model_name="ConvAgent"):
-        super().__init__(learning_rate, decay_rate, min_replay_to_fit, minibatch_size, model_path=model_path, model_name=model_name)
+        DeepQAgent.__init__(self, learning_rate, decay_rate, min_replay_to_fit=min_replay_to_fit, minibatch_size=minibatch_size, model_path=model_path, model_name=model_name)
         self.model = ConvNet(update_every=500)

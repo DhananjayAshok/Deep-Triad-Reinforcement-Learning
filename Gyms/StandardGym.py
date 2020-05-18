@@ -43,7 +43,10 @@ class StandardGym(object):
 
             if n % save_every == 0:
                 if training:
-                    agent.save(**kwargs)
+                    try:
+                        agent.save(**kwargs)
+                    except:
+                        print("Could not save")
                 else:
                     pass
 

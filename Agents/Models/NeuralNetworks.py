@@ -1,10 +1,11 @@
 #Core Imports Here
-from Configs import GAME_CLASS
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, Flatten, Input, Conv2D
 from keras.initializers import Zeros
 import numpy as np
-from Configs import ACTION_CLASS
+from GameSystem.Actions import Connect4Action
+from GameSystem.Games import Connect4Game
+from GameSystem.Environments import Connect4Environment
 ##############################################################################################
 class DeepQNetwork(object):
     """
@@ -19,7 +20,7 @@ class DeepQNetwork(object):
             train from input minibatch of format [state, action, reward, new_state, done]
 
         """
-        self.g = GAME_CLASS()
+        self.g = Connect4Game()
         self.update_counter = 0
         self.update_every = 1000
         self.main_model = self.create_model()
@@ -100,7 +101,7 @@ class DeepQNetwork(object):
         done = kwargs['done']
         if not done:
             next_values = []
-            for act in ACTION_CLASS.get_action_space():
+            for act in Connect4Action.get_action_space():
                 inp = np.array([self.transform_input(state=next_state, action=act)])
                 #print(inp.shape)
                 pred = self.prev_model.predict(inp)
@@ -125,7 +126,7 @@ class DeepQNetwork(object):
 
 class ConvNet(DeepQNetwork):
     def __init__(self, update_every=1000):
-        DeepQNetwork.__init__(update_every=update_every)
+        DeepQNetwork.__init__(self, update_every=update_every)
 
     def create_model(self):
         model = Sequential()
@@ -141,7 +142,7 @@ class ConvNet(DeepQNetwork):
         action = kwargs['action']
         move = action.get_data()
         board, turn = state.get_induviduals()
-        return np.array([board, self.fill(action), self.fill(turn)])
+        return np.array([board, self.fill(action.get_data()), self.fill(turn)])
 
     def fill(self, turn):
         return np.reshape([turn for i in range(36)], (6,6))

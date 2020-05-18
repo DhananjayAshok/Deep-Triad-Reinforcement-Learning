@@ -16,7 +16,7 @@ class Opponent(object):
     """
     def __init__(self, **kwargs):
         self.g = Connect4Game(**kwargs)
-        self.g_env = ENVIRONMENT_CLASS(**kwargs)
+        self.g_env = Connect4Environment(**kwargs)
 
 
     def play(self, state, **kwargs):
