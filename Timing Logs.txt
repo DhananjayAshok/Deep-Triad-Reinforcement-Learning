@@ -1,0 +1,8 @@
+Refactor Plan
+Default: Change nothing
+Alias: Change all class alias references
+Action: Change Action from Class to single int object
+State: Change state from class to single object with utility functions for board and next etc
+
+-------------------------
+Default Dictionary - 3 hours 10 minutes for 5000

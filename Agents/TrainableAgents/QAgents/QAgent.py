@@ -18,7 +18,7 @@ class QAgent(TrainableAgent):
         """
         choices = []
         for act in ACTION_CLASS.get_action_space():
-            if self.g.is_legal(act, state) or not avoid_illegal:
+            if self.g.is_legal(act, state=state) or not avoid_illegal:
                 choices.append(act)
 
         if np.random.random() > real_epsilon:
