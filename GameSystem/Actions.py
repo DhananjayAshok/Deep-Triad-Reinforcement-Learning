@@ -24,3 +24,23 @@ class Action(object):
 
 # Implement Your Custom Classes Below
 ##############################################################################################
+import numpy as np
+
+
+class TicTacToeAction(Action):
+    def get_action_space():
+        """
+        Returns the list of actions with numbers from 1 through 9
+        """
+        return [TicTacToeAction(i) for i in range(1, 10)]
+    
+    def __init__(self, inp):
+        Action.__init__(self)
+        self.act = inp
+
+    def __str__(self):
+        return str(self.act)
+
+    def get_data(self):
+
+        return self.act
