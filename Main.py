@@ -6,8 +6,7 @@ from GameSystem.States import TicTacToeState
 ###############################################################
 from Gyms.Gyms import ForwardTDLambdaGym, BatchDQLearningGym
 from Opponents.Opponents import RandomOpponent, HyperionOpponent
-from Agents.OpponentAgent import OpponentAgent
-from Agents.TrainableAgents.QAgents.DictionaryAgent import DictionaryAgent
+from Agents.Agent import DictionaryAgent
 from time import time
 
 

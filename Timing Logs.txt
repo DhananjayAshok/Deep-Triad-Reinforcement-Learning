@@ -9,8 +9,7 @@ Agent Package Refactor: Move all children into the same file
 Default Dictionary - 3 hours 10 minutes for 5000
 Alias: 1.2s/it consistently till 12% then 2s/it
 Action: Reached 15% in 1 hour but is taking 3s/it now| 22% in 2 hours 30 minutes
-
-
-
+State: Much faster at first but by 3% settles down to 1.3it/s and decreasing
+Agent Package Refactor: Not that different
 ------------------------------
 THE NORMAL TICTACTOE ONE IS RIDICULOUSLY FAST - 300it/s
