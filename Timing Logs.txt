@@ -3,6 +3,14 @@ Default: Change nothing
 Alias: Change all class alias references
 Action: Change Action from Class to single int object
 State: Change state from class to single object with utility functions for board and next etc
+Agent Package Refactor: Move all children into the same file
 
 -------------------------
 Default Dictionary - 3 hours 10 minutes for 5000
+Alias: 1.2s/it consistently till 12% then 2s/it
+Action: Reached 15% in 1 hour but is taking 3s/it now| 22% in 2 hours 30 minutes
+
+
+
+------------------------------
+THE NORMAL TICTACTOE ONE IS RIDICULOUSLY FAST - 300it/s

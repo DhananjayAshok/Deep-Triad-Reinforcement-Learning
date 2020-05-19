@@ -51,11 +51,11 @@ class TicTacToeGame(Game):
         """
         returns true iff the proposed move is legal given the board at its current state
         """
-        if not (1 <= action.act <= 9):
+        if not (1 <= action <= 9):
             return False
         else:
             if state is not None:
-                board, turn, next = state.get_induviduals()
+                board, turn, next = get_state_data(state)
             decoded = self._decode_action(action, board)
             return decoded[0] <= 0
 
@@ -75,7 +75,7 @@ class TicTacToeGame(Game):
         """
         Takes in a move and returns [height, row col] that is intended
         """
-        move = action.act
+        move = action
         if board is None:
             board = self.matrix
         col = (move-1)%3

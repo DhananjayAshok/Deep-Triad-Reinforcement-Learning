@@ -1,6 +1,9 @@
 #Imports Here
 import numpy as np
-from Configs import ACTION_CLASS, GAME_CLASS, ENVIRONMENT_CLASS
+from GameSystem.Environments import TicTacToeEnvironment
+from GameSystem.Games import TicTacToeGame
+from GameSystem.Actions import TicTacToeAction
+from GameSystem.States import TicTacToeState
 
 
 
@@ -12,8 +15,8 @@ class Opponent(object):
     Will be an abstract parent class for various other children who implement different strategies
     """
     def __init__(self, **kwargs):
-        self.g = GAME_CLASS(**kwargs)
-        self.g_env = ENVIRONMENT_CLASS(**kwargs)
+        self.g = TicTacToeGame(**kwargs)
+        self.g_env = TicTacToeEnvironment(**kwargs)
 
 
     def play(self, state, **kwargs):

@@ -1,5 +1,8 @@
 from Agents.TrainableAgents.TrainableAgent import TrainableAgent
-from Configs import ACTION_CLASS
+from GameSystem.Environments import TicTacToeEnvironment
+from GameSystem.Games import TicTacToeGame
+from GameSystem.Actions import TicTacToeAction
+from GameSystem.States import TicTacToeState
 import numpy as np
 
 class QAgent(TrainableAgent):
@@ -17,7 +20,7 @@ class QAgent(TrainableAgent):
         Manually Avoids Illegal Moves if avoid_illegal is True
         """
         choices = []
-        for act in ACTION_CLASS.get_action_space():
+        for act in range(1, 10):
             if self.g.is_legal(act, state=state) or not avoid_illegal:
                 choices.append(act)
 

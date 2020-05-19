@@ -1,6 +1,10 @@
 #Core Imports
-from Configs import ACTION_CLASS, GAME_CLASS, ENVIRONMENT_CLASS
+from GameSystem.Environments import TicTacToeEnvironment
+from GameSystem.Games import TicTacToeGame
+from GameSystem.Actions import TicTacToeAction
+from GameSystem.States import TicTacToeState
 from .Opponent import Opponent
+from Utility import get_state_data
 ##############################################################################################
 import numpy as np
 
@@ -13,23 +17,23 @@ class TicTacToeOpponent(Opponent):
         """
         If the next player has any move that wins them the game return a move that blocks at least one of those moves else returns -1
         """
-        board, turn, next = state.get_induviduals()
+        board, turn, next = get_state_data(state)
 
-        for action in ACTION_CLASS.get_action_space():
+        for action in range(1, 10):
             if self.g.is_legal(action, board) and self.g.check_for_win(action, next, board) == next:
                 return action
-        return ACTION_CLASS(-1)
+        return -1
 
     def winning_move(self, state):
         """
         If there is an object that will win the AI the game this move it returns the move that wins else it returns -1
         """
-        board, turn, next = state.get_induviduals()
+        board, turn, next = get_state_data(state)
 
-        for action in ACTION_CLASS.get_action_space():
+        for action in range(1,10):
             if self.g.is_legal(action, board) and self.g.check_for_win(action, turn, board) == turn:
                 return action
-        return ACTION_CLASS(-1)
+        return -1
 
 class SelfOpponent(TicTacToeOpponent):
     """
@@ -55,8 +59,8 @@ class HumanOpponent(TicTacToeOpponent):
             except:
                 print("That move was not an integer")
             else:
-                act = ACTION_CLASS(int(inp))
-                board, curr, next = state.get_induviduals()
+                act = TicTacToeAction(int(inp))
+                board, curr, next = get_state_data(state)
                 legal = self.g.is_legal(act, state)
                 if legal:
                     return act
@@ -79,24 +83,25 @@ class RandomOpponent(TicTacToeOpponent):
             self.blocking = blocking
             self.winning = winning
 
+
     def play(self, state):
         """
         Plays a random move (unless winning and/or blocking was true
         """
-        board, turn, next = state.get_induviduals()
+        board, turn, next = get_state_data(state)
         if self.winning:
             winmove = self.winning_move(state)
-            if (winmove.act != -1):
+            if (winmove != -1):
                 #print("Tries Winning Move")
                 return winmove
         if self.blocking:
             blockmove = self.blocking_move(state)
-            if blockmove.act != -1:
+            if blockmove != -1:
                 #print("Tries Blocking Move")
                 return blockmove
         #print("Does Neither")
         choices = []
-        for action in ACTION_CLASS.get_action_space():
+        for action in range(1, 10):
             if self.g.is_legal(action, board):
                 choices.append(action)
         #print(f"Thinks its choices are {choices}")
@@ -110,18 +115,18 @@ class HyperionOpponent(TicTacToeOpponent):
         TicTacToeOpponent.__init__(self)
 
     def play(self, state):
-        board, player, next_player = state.get_induviduals()
+        board, player, next_player = get_state_data(state)
         winmove = self.winning_move(state)
-        if winmove.act != -1:
+        if winmove != -1:
             return winmove
         blockmove = self.blocking_move(state)
-        if blockmove.act != -1:
+        if blockmove != -1:
             return blockmove
-        choices = [-1 for i in range(0, len(ACTION_CLASS.get_action_space()))]
-        for action in ACTION_CLASS.get_action_space():
+        choices = [-1 for i in range(0, 10)]
+        for action in range(1, 10):
             if self.g.is_legal(action, board):
                 choices[action.act-1] = self.g.get_attack_score(action, player, board)
-        return ACTION_CLASS(random_highest_index(choices)+1)
+        return random_highest_index(choices)+1
 
 
 def random_highest_index(scores):

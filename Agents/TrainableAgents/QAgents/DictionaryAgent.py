@@ -1,6 +1,9 @@
 #Core Imports Here
 from Agents.TrainableAgents.QAgents.QAgent import QAgent
-from Configs import ACTION_CLASS
+from GameSystem.Environments import TicTacToeEnvironment
+from GameSystem.Games import TicTacToeGame
+from GameSystem.Actions import TicTacToeAction
+from GameSystem.States import TicTacToeState
 import os
 import pickle
 import numpy as np
@@ -17,7 +20,7 @@ class DictionaryAgent(QAgent):
         self.d = {}
 
     def estimate_from_q_vector(self, q_vector):
-        key = tuple(np.append(q_vector[0].get_data(), q_vector[1].get_data()))
+        key = tuple(np.append(q_vector[0].get_data(), q_vector[1]))
         return self.d.get(key, 0)
 
     def learn(self, **kwargs):
@@ -29,15 +32,15 @@ class DictionaryAgent(QAgent):
 
         for i, (state, action, reward, next_state, done) in enumerate(queue):
             current_vec = self.create_q_vector(state, action)
-            vectuple = tuple(np.append(current_vec[0].get_data(), current_vec[1].get_data()))
+            vectuple = tuple(np.append(current_vec[0].get_data(), current_vec[1]))
             if done:
                 self.d[vectuple] = reward
             else:
-                next_actions = ACTION_CLASS.get_action_space()
+                next_actions = range(1, 10)
                 values = []
                 for act in next_actions:
                     next_vec = self.create_q_vector(next_state, act)
-                    temp_vectuple = tuple(np.append(next_vec[0].get_data(), next_vec[1].get_data()))
+                    temp_vectuple = tuple(np.append(next_vec[0].get_data(), next_vec[1]))
                     values.append(self.estimate_from_q_vector(next_vec))
                 if reward <= -10:
                     pass

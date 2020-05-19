@@ -1,10 +1,12 @@
 #Core Imports Here
-from Configs import GAME_CLASS
 from keras.models import Sequential, Model
 from keras.layers import Dense, Flatten, Input
 from keras.initializers import Zeros
 import numpy as np
-from Configs import ACTION_CLASS
+from GameSystem.Environments import TicTacToeEnvironment
+from GameSystem.Games import TicTacToeGame
+from GameSystem.Actions import TicTacToeAction
+from GameSystem.States import TicTacToeState
 ##############################################################################################
 class DeepQNetwork(object):
     """
@@ -19,7 +21,7 @@ class DeepQNetwork(object):
             train from input minibatch of format [state, action, reward, new_state, done]
 
         """
-        self.g = GAME_CLASS()
+        self.g = TicTacToeGame()
         self.update_counter = 0
         self.update_every = 1000
         self.main_model = self.create_model()
@@ -100,7 +102,7 @@ class DeepQNetwork(object):
         done = kwargs['done']
         if not done:
             next_values = []
-            for act in ACTION_CLASS.get_action_space():
+            for act in TicTacToeAction.get_action_space():
                 inp = np.array([self.transform_input(state=next_state, action=act)])
                 #print(inp.shape)
                 pred = self.prev_model.predict(inp)

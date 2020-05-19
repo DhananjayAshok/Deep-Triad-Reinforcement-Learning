@@ -158,7 +158,10 @@ class TicTacToeEnvironment(Environment):
         """
         will return the state vector of the game as it is
         """
-        return TicTacToeState(self.g.matrix, self.turn, self.turn%2+1)
+        board = self.g.get_board()
+        board = np.reshape(board, (9,))
+        board = np.append(board, [self.turn, self.turn%2+1])
+        return board
 
     def print_state(self, provided=None):
         """

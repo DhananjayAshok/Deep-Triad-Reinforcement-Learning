@@ -1,5 +1,5 @@
 from Agents.Agent import Agent
-from Configs import GAME_CLASS
+from GameSystem.Games import TicTacToeGame
 
 class TrainableAgent(Agent):
     """
@@ -10,7 +10,7 @@ class TrainableAgent(Agent):
         self.decay_rate = decay_rate
         self.model_name = model_name
         self.model_path = model_path
-        self.g = GAME_CLASS()
+        self.g = TicTacToeGame()
 
     def learn(self, dataset, **kwargs):
         raise NotImplementedError
