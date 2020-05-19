@@ -20,7 +20,7 @@ class DictionaryAgent(QAgent):
         self.d = {}
 
     def estimate_from_q_vector(self, q_vector):
-        key = tuple(np.append(q_vector[0].get_data(), q_vector[1]))
+        key = tuple(np.append(q_vector[0], q_vector[1]))
         return self.d.get(key, 0)
 
     def learn(self, **kwargs):
@@ -32,7 +32,7 @@ class DictionaryAgent(QAgent):
 
         for i, (state, action, reward, next_state, done) in enumerate(queue):
             current_vec = self.create_q_vector(state, action)
-            vectuple = tuple(np.append(current_vec[0].get_data(), current_vec[1]))
+            vectuple = tuple(np.append(current_vec[0], current_vec[1]))
             if done:
                 self.d[vectuple] = reward
             else:
@@ -40,7 +40,7 @@ class DictionaryAgent(QAgent):
                 values = []
                 for act in next_actions:
                     next_vec = self.create_q_vector(next_state, act)
-                    temp_vectuple = tuple(np.append(next_vec[0].get_data(), next_vec[1]))
+                    temp_vectuple = tuple(np.append(next_vec[0], next_vec[1]))
                     values.append(self.estimate_from_q_vector(next_vec))
                 if reward <= -10:
                     pass

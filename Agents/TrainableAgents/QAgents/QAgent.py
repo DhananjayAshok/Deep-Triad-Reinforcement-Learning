@@ -50,7 +50,7 @@ class QAgent(TrainableAgent):
 
     def estimate_from_q_vector(self, q_vector):
         try:
-            return self.model.predict([np.append(q_vector[0].get_data(), q_vector[1].get_data())])[0]
+            return self.model.predict([np.append(q_vector[0], q_vector[1])])[0]
         except:
             print(f"Could not predict (Likely because model was not fitted or because model does not exist) returned 0")
             return 0
